@@ -1,5 +1,5 @@
-import { StaffLogin } from "@/features/auth/components/StaffLogin";
-import { notFound } from 'next/navigation'; // Next.js nte inbuilt 404 page
+import { notFound, redirect } from 'next/navigation'; 
+// import { StaffLogin } from "@/features/auth/components/StaffLogin"; // Thalkkalatheku hide cheyyunnu
 
 // Ithu nammude Dummy API function (Python API varunnathu vare ithu use cheyyam)
 const checkTenantExists = async (tenantName: string) => {
@@ -25,6 +25,12 @@ export default async function TenantPage({ params }: { params: Promise<{ tenant:
     notFound(); 
   }
 
-  // Client undenkil nammude Login page kanikkum
-  return <StaffLogin tenantName={tenant} />;
+  // ==========================================
+  // HIDING LOGIN FOR NOW - DIRECT TO DASHBOARD
+  // ==========================================
+  // Client undenkil nammude Login page kanikkum (Nale backend set aakkumpol ithu uncomment cheyyam)
+  // return <StaffLogin tenantName={tenant} />;
+
+  // Thalkkalatheku valid tenant aanenkil direct dashboard-lekku pokan
+  redirect("/dashboard");
 }
