@@ -3,32 +3,27 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(req: NextRequest) {
   const url = req.nextUrl;
-  const host = req.headers.get('host') || ''; 
+  const host = req.headers.get('host') || '';
 
-  console.log("👉 Requested Host:", host);
-
-  // Vercel-l host cheyyumbol ulla domain automatically edukkan ulla logic
-  // 'localhost:3000' local-l work aavum, allengil Vercel URL work aavum.
-  // Note: Nammal Vercel-l add cheyyunna root domain (eg: my-crm.vercel.app) ivide replace cheyyuka
-  const isProduction = process.env.NODE_ENV === 'production';
-  // VERCEL_URL is automatically provided by vercel. We can use it or hardcode for demo.
-  // Sir-nu kanikkan namukku oru ENV variable use cheyyam.
-  const rootDomain = isProduction ? process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'waywego.in' : 'localhost:3000';
-
-  // Host-um rootDomain-um oreyannamenkil (subdomain illenkil) - Main site aanu!
-  if (host === rootDomain || host === `www.${rootDomain}`) {
-    console.log("🏠 Serving Main Site");
-    return NextResponse.next();
+  // 1. FREE DEMO TRICK: URL-l '?tenant=peru' undenkil athu edukkunnu
+  const demoTenant = url.searchParams.get('tenant');
+  
+  if (demoTenant) {
+    console.log("🎯 Demo Tenant Mode:", demoTenant);
+    // Tenant folder-lekku invisible aayi route cheyyunnu
+    return NextResponse.rewrite(new URL(`/${demoTenant}${url.pathname}`, req.url));
   }
 
-  // Subdomain clean aayi extract cheyyunnu 
-  const subdomain = host.replace(`.${rootDomain}`, '');
-
-  if (subdomain && subdomain !== 'www' && subdomain !== host) {
-    console.log("✅ Rewriting to Tenant:", subdomain);
-    return NextResponse.rewrite(new URL(`/${subdomain}${url.pathname}`, req.url));
+  // 2. Normal Localhost Logic (Ningalkku local aayi run cheyyan)
+  const isLocal = host.includes('localhost');
+  if (isLocal) {
+    const subdomain = host.split('.')[0];
+    if (subdomain !== 'localhost' && subdomain !== 'www') {
+       return NextResponse.rewrite(new URL(`/${subdomain}${url.pathname}`, req.url));
+    }
   }
 
+  // Tenant illenkil normal main site kanikkum
   return NextResponse.next();
 }
 
