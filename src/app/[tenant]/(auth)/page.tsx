@@ -1,5 +1,5 @@
 import { notFound, redirect } from 'next/navigation'; 
-// import { StaffLogin } from "@/features/auth/components/StaffLogin"; // Thalkkalatheku hide cheyyunnu
+// import { StaffLogin } from "@/features/auth/components/StaffLogin"; //  hide 
 
 // Ithu nammude Dummy API function (Python API varunnathu vare ithu use cheyyam)
 const checkTenantExists = async (tenantName: string) => {

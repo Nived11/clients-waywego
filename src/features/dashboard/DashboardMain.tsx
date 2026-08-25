@@ -64,6 +64,17 @@ export const DashboardMain = ({ tenantName }: { tenantName: string }) => {
         <div className="lg:col-span-4"><UpcomingDepartures /></div>
         <div className="lg:col-span-4"><PaymentsOverview /></div>
       </div>
+
+       {/* Global Footer */}
+          <div className="flex justify-between items-center pt-6 mt-8 border-t border-gray-200 text-xs text-gray-500 font-medium">
+            <p>
+              Way We Go CRM <span className="mx-2">•</span> Powered by <span className="text-blue-600 font-bold tracking-wider">KAELIXO</span>
+            </p>
+            <p className="flex items-center gap-1 cursor-pointer hover:text-gray-700 transition">
+              Last updated: Just now <span className="text-base leading-none">⟳</span>
+            </p>
+          </div>
+          
     </div>
   );
 };
