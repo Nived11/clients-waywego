@@ -1,36 +1,9 @@
-import { notFound, redirect } from 'next/navigation'; 
-// import { StaffLogin } from "@/features/auth/components/StaffLogin"; //  hide 
+// src/app/[tenant]/page.tsx
+import { StaffLogin } from "@/features/auth/components/StaffLogin"; 
 
-// Ithu nammude Dummy API function (Python API varunnathu vare ithu use cheyyam)
-const checkTenantExists = async (tenantName: string) => {
-  // Oru 1 second delay kodukkunnu (Real API call-nte time delay simulate cheyyan)
-  await new Promise(resolve => setTimeout(resolve, 1000));
-
-  // Ippol nammude system-l cash koduthu vangiye 2 clients mathram undennu vekkuka
-  const validTenants = ['travelhope', 'demo'];
-
-  // URL-l vanna peru ee array-l undenkil 'true' return cheyyum
-  return validTenants.includes(tenantName);
-};
-
-export default async function TenantPage({ params }: { params: Promise<{ tenant: string }> }) {
+export default async function StaffPage({ params }: { params: Promise<{ tenant: string }> }) {
   const resolvedParams = await params;
-  const tenant = resolvedParams.tenant;
-
-  // Dummy API call cheyyunnu
-  const isValidTenant = await checkTenantExists(tenant);
-
-  // Client database-l illenkil (false aayenkil), 404 page kanikkum
-  if (!isValidTenant) {
-    notFound(); 
-  }
-
-  // ==========================================
-  // HIDING LOGIN FOR NOW - DIRECT TO DASHBOARD
-  // ==========================================
-  // Client undenkil nammude Login page kanikkum (Nale backend set aakkumpol ithu uncomment cheyyam)
-  // return <StaffLogin tenantName={tenant} />;
-
-  // Thalkkalatheku valid tenant aanenkil direct dashboard-lekku pokan
-  redirect("/dashboard");
+  
+  // API check ippo layout.tsx handle cheyyunnu, so ivide just component vilichal mathi
+  return <StaffLogin tenantName={resolvedParams.tenant} />;
 }
