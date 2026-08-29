@@ -10,11 +10,6 @@ export function middleware(req: NextRequest) {
   // ==========================================
   // 1. AUTHENTICATION CHECK
   // ==========================================
-  // ⚠️ TODO (PRODUCTION DEPLOYMENT CHECKLIST) ⚠️
-  // 1. Remove 'isLoggedIn' variable.
-  // 2. Remove 'isLoggedIn' from the IF conditions below.
-  // 3. Keep ONLY 'sessionCookie' for authentication logic.
-  // ==========================================
   const sessionCookie = req.cookies.get('sessionid');
   const isLoggedIn = req.cookies.get('is_logged_in'); 
   
@@ -29,36 +24,26 @@ export function middleware(req: NextRequest) {
   }
 
   // ==========================================
-  // 2. SMART TENANT ROUTING (Local, Vercel, Prod)
+  // 2. SMART TENANT ROUTING (Subdomain based)
   // ==========================================
   
-  // SCENARIO A: Vercel Free Tier Environment (?tenant=travelhope)
-  if (host.includes('vercel.app')) {
-    // TypeScript type fix: string | null | undefined
-    let vercelTenant: string | null | undefined = url.searchParams.get('tenant');
-    
-    if (vercelTenant) {
-      // URL-l param undenkil cookie-l save cheythu rewrite cheyyunnu
-      const response = NextResponse.rewrite(new URL(`/${vercelTenant}${pathname}`, req.url));
-      response.cookies.set('vercel_tenant', vercelTenant, { path: '/' });
-      return response;
-    }
-    
-    // URL-l illenkil cookie-l ninnu eduthu rewrite cheyyunnu
-    vercelTenant = req.cookies.get('vercel_tenant')?.value;
-    if (vercelTenant) {
-      return NextResponse.rewrite(new URL(`/${vercelTenant}${pathname}`, req.url));
-    }
-  } 
+  // host = travelhope.designzo.in -> subdomain = travelhope
+  const subdomain = host.split('.')[0];
   
-  // SCENARIO B: Localhost & Production Live Domains (travelhope.localhost / travelhope.waywego.in)
-  else {
-    const subdomain = host.split('.')[0];
-    
-    // Main domain, localhost, www allengil mathram subdomain aayi kooti rewrite cheyyuka
-    if (subdomain !== 'localhost' && subdomain !== 'www' && subdomain !== 'waywego') {
-       return NextResponse.rewrite(new URL(`/${subdomain}${pathname}`, req.url));
-    }
+  // മെയിൻ ഡൊമെയ്നുകൾ വന്നാൽ റീഡയറക്ട് ചെയ്യാതിരിക്കാൻ
+  // waywego-crm എന്നത് vercel-ൻ്റെ ഡീഫോൾട്ട് url ആണ് (waywego-crm.vercel.app)
+  const ignoredSubdomains = ['localhost', 'www', 'waywego', 'designzo', 'waywego-crm'];
+
+  if (!ignoredSubdomains.includes(subdomain)) {
+     // ഇത് സബ്-ഡൊമെയ്ൻ ആണ് (ഉദാഹരണത്തിന്: abc, travelhope). അപ്പോൾ ലോഗിൻ പേജ് കാണിക്കുക.
+     return NextResponse.rewrite(new URL(`/${subdomain}${pathname}`, req.url));
+  } else {
+     // ഇത് മെയിൻ ഡൊമെയ്ൻ ആണ് (waywego, designzo, vercel url).
+     // ആരെങ്കിലും ഈ മെയിൻ URL വെറുതെ അടിച്ചാൽ (അതായത് pathname === '/'), നേരെ മെയിൻ സൈറ്റിലേക്ക് വിടുക.
+     // ലോക്കൽ ഡെവലപ്മെന്റ് സമയത്ത് (localhost) ഇത് പ്രവർത്തിക്കാതിരിക്കാൻ ശ്രദ്ധിച്ചിട്ടുണ്ട്.
+     if (pathname === '/' && !host.includes('localhost')) {
+         return NextResponse.redirect('https://www.waywego.in'); 
+     }
   }
 
   return NextResponse.next();
