@@ -23,15 +23,14 @@ export const useLogin = () => {
 
       const data = await authService.login(credentials);
       
+      // ലോഗിൻ ശരിക്കും സക്സസ് ആയാൽ മാത്രം!
       if (data.success) {
         // ==========================================
-        // ENVIRONMENT BASED COOKIE (BEST PRACTICE)
-        // Development-ൽ മാത്രം ഈ കുക്കി സെറ്റ് ചെയ്യുക. 
-        // Vercel-ൽ (Production) ഇത് റൺ ആവില്ല.
+        // FRONTEND AUTH FLAG 
+        // Backend ഒറിജിനൽ sessionid സെറ്റ് ചെയ്തത് കൊണ്ട്,
+        // Middleware-ന് മനസ്സിലാവാൻ ഈ ഗേറ്റ് പാസ്സ് കുക്കി സെറ്റ് ചെയ്യുന്നു.
         // ==========================================
-        if (process.env.NODE_ENV === 'development') {
-            document.cookie = "is_logged_in=true; path=/;"; 
-        }
+        document.cookie = "is_logged_in=true; path=/; max-age=86400;"; 
         
         router.push('/dashboard'); 
       } else {

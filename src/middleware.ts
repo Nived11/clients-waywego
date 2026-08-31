@@ -6,10 +6,7 @@ export function middleware(req: NextRequest) {
   const url = req.nextUrl;
   const host = req.headers.get('host') || '';
   const pathname = url.pathname;
-
-  // ==========================================
-  // ENVIRONMENT CHECK
-  // ==========================================
+  
   const isDevelopment = process.env.NODE_ENV === 'development';
 
   // ==========================================
@@ -20,8 +17,8 @@ export function middleware(req: NextRequest) {
   
   const isPublicRoute = pathname === '/' || pathname === '/admin-login';
 
-  // യഥാർത്ഥ sessionid ഉണ്ടോ? അല്ലെങ്കിൽ Development ആയിരിക്കെ ഫേക്ക് കുക്കി ഉണ്ടോ?
-  const isAuthenticated = sessionCookie || (isDevelopment && isLoggedInCookie);
+  // ഒന്നുകിൽ യഥാർത്ഥ sessionid ഉണ്ടാവണം, അല്ലെങ്കിൽ ലോഗിൻ സക്സസ് ആയപ്പോ വെച്ച ഫ്ലാഗ് ഉണ്ടാവണം
+  const isAuthenticated = sessionCookie || isLoggedInCookie;
 
   if (!isAuthenticated && !isPublicRoute) {
     return NextResponse.redirect(new URL('/', req.url));
