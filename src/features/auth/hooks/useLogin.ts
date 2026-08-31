@@ -12,6 +12,7 @@ export const useLogin = () => {
   const login = async (credentials: any) => {
     setLoading(true);
     setError(null);
+    
     try {
       const csrfResponse = await api.get('/api/auth/csrf/');
       const token = csrfResponse.data.csrfToken; 
@@ -24,16 +25,19 @@ export const useLogin = () => {
       
       if (data.success) {
         // ==========================================
-        // ⚠️ TODO (PRODUCTION DEPLOYMENT CHECKLIST) ⚠️
-        // Remove the below 'is_logged_in' cookie before production!
-        // Production relies securely on Django's 'sessionid' cookie.
+        // ENVIRONMENT BASED COOKIE (BEST PRACTICE)
+        // Development-ൽ മാത്രം ഈ കുക്കി സെറ്റ് ചെയ്യുക. 
+        // Vercel-ൽ (Production) ഇത് റൺ ആവില്ല.
         // ==========================================
-        document.cookie = "is_logged_in=true; path=/;"; 
+        if (process.env.NODE_ENV === 'development') {
+            document.cookie = "is_logged_in=true; path=/;"; 
+        }
         
         router.push('/dashboard'); 
       } else {
         setError(data.message || 'Login failed');
       }
+      
     } catch (err: any) {
        setError(err.response?.data?.message || 'An error occurred during login');
     } finally {

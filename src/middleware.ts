@@ -8,40 +8,41 @@ export function middleware(req: NextRequest) {
   const pathname = url.pathname;
 
   // ==========================================
-  // 1. AUTHENTICATION CHECK
+  // ENVIRONMENT CHECK
+  // ==========================================
+  const isDevelopment = process.env.NODE_ENV === 'development';
+
+  // ==========================================
+  // 1. DYNAMIC AUTHENTICATION CHECK
   // ==========================================
   const sessionCookie = req.cookies.get('sessionid');
-  const isLoggedIn = req.cookies.get('is_logged_in'); 
+  const isLoggedInCookie = req.cookies.get('is_logged_in');
   
   const isPublicRoute = pathname === '/' || pathname === '/admin-login';
 
-  if (!sessionCookie && !isLoggedIn && !isPublicRoute) {
+  // യഥാർത്ഥ sessionid ഉണ്ടോ? അല്ലെങ്കിൽ Development ആയിരിക്കെ ഫേക്ക് കുക്കി ഉണ്ടോ?
+  const isAuthenticated = sessionCookie || (isDevelopment && isLoggedInCookie);
+
+  if (!isAuthenticated && !isPublicRoute) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  if ((sessionCookie || isLoggedIn) && isPublicRoute) {
+  if (isAuthenticated && isPublicRoute) {
     return NextResponse.redirect(new URL('/dashboard', req.url));
   }
 
   // ==========================================
-  // 2. SMART TENANT ROUTING (Subdomain based)
+  // 2. SMART TENANT ROUTING
   // ==========================================
-  
-  // host = travelhope.designzo.in -> subdomain = travelhope
   const subdomain = host.split('.')[0];
-  
-  // മെയിൻ ഡൊമെയ്നുകൾ വന്നാൽ റീഡയറക്ട് ചെയ്യാതിരിക്കാൻ
-  // waywego-crm എന്നത് vercel-ൻ്റെ ഡീഫോൾട്ട് url ആണ് (waywego-crm.vercel.app)
   const ignoredSubdomains = ['localhost', 'www', 'waywego', 'designzo', 'waywego-crm'];
 
   if (!ignoredSubdomains.includes(subdomain)) {
-     // ഇത് സബ്-ഡൊമെയ്ൻ ആണ് (ഉദാഹരണത്തിന്: abc, travelhope). അപ്പോൾ ലോഗിൻ പേജ് കാണിക്കുക.
      return NextResponse.rewrite(new URL(`/${subdomain}${pathname}`, req.url));
   } else {
-     // ഇത് മെയിൻ ഡൊമെയ്ൻ ആണ് (waywego, designzo, vercel url).
-     // ആരെങ്കിലും ഈ മെയിൻ URL വെറുതെ അടിച്ചാൽ (അതായത് pathname === '/'), നേരെ മെയിൻ സൈറ്റിലേക്ക് വിടുക.
-     // ലോക്കൽ ഡെവലപ്മെന്റ് സമയത്ത് (localhost) ഇത് പ്രവർത്തിക്കാതിരിക്കാൻ ശ്രദ്ധിച്ചിട്ടുണ്ട്.
-     if (pathname === '/' && !host.includes('localhost')) {
+     // ഇത് മെയിൻ ഡൊമെയ്ൻ ആണ്. 
+     // Production-ൽ വെറുതെ മെയിൻ URL അടിച്ചാൽ റീഡയറക്ട് ചെയ്യുക.
+     if (pathname === '/' && !isDevelopment) {
          return NextResponse.redirect('https://www.waywego.in'); 
      }
   }

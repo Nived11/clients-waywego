@@ -1,15 +1,28 @@
 import { ChevronDown } from "lucide-react";
 
-export default function EnquiryPipeline() {
+// 1. TypeScript Interface ഫോർ Props
+interface PipelineProps {
+  data?: {
+    active?: number;
+    details_not_received?: number;
+    new?: number;
+    proposal_sent?: number;
+  };
+}
+
+export default function EnquiryPipeline({ data }: PipelineProps) {
+  const safeData = data || { new: 0, active: 0, details_not_received: 0, proposal_sent: 0 };
+
+  // API ഡാറ്റ വെച്ച് സ്റ്റേജുകൾ ഡൈനാമിക് ആക്കുന്നു
   const stages = [
-    { name: "New", count: 36, color: "bg-blue-600" },
-    { name: "Contacted", count: 27, color: "bg-sky-500" },
-    { name: "Requirement", count: 19, color: "bg-indigo-500" },
-    { name: "Quotation Sent", count: 21, color: "bg-purple-500" },
-    { name: "Follow-up", count: 14, color: "bg-yellow-500" },
-    { name: "Confirmed", count: 8, color: "bg-emerald-500" },
-    { name: "Lost", count: 5, color: "bg-rose-400" },
+    { name: "New", count: safeData.new || 0, color: "bg-blue-600" },
+    { name: "Details Pending", count: safeData.details_not_received || 0, color: "bg-sky-500" },
+    { name: "Active", count: safeData.active || 0, color: "bg-indigo-500" },
+    { name: "Proposal Sent", count: safeData.proposal_sent || 0, color: "bg-purple-500" },
   ];
+
+  // Total ലീഡുകളുടെ എണ്ണം കണ്ടുപിടിക്കുന്നു
+  const totalLeads = stages.reduce((acc, stage) => acc + stage.count, 0);
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 h-full flex flex-col">
@@ -26,10 +39,14 @@ export default function EnquiryPipeline() {
       </div>
 
       <div className="flex-1 flex flex-col justify-center">
-        {/* Pipeline Bar */}
+        {/* Pipeline Bar (Dynamic Width) */}
         <div className="flex w-full h-3 rounded-full overflow-hidden mb-6">
           {stages.map((stage, idx) => (
-            <div key={idx} className={`h-full ${stage.color}`} style={{ width: `${(stage.count / 130) * 100}%` }}></div>
+            <div 
+              key={idx} 
+              className={`h-full ${stage.color}`} 
+              style={{ width: totalLeads > 0 ? `${(stage.count / totalLeads) * 100}%` : '0%' }}
+            ></div>
           ))}
         </div>
         
@@ -47,12 +64,8 @@ export default function EnquiryPipeline() {
       {/* Footer Stats */}
       <div className="flex items-center justify-between pt-4 border-t border-gray-100">
         <div>
-          <p className="text-xs text-gray-400">Total Leads</p>
-          <p className="text-xl font-bold text-gray-800">130</p>
-        </div>
-        <div className="text-right">
-          <p className="text-xs text-gray-400">Conversion Rate</p>
-          <p className="text-xl font-bold text-gray-800">19.51%</p>
+          <p className="text-xs text-gray-400">Total Pipeline Leads</p>
+          <p className="text-xl font-bold text-gray-800">{totalLeads}</p>
         </div>
       </div>
     </div>
