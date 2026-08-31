@@ -1,50 +1,72 @@
 import { ChevronDown } from "lucide-react";
 
-export default function QuotationPerformance() {
+interface QuotationProps {
+  data?: {
+    quotations_created: number;
+    total_quotation_value: string;
+    accepted: number;
+    pending: number;
+    lost_rejected: number;
+    conversion_rate: number;
+    avg_quotation_value: string;
+  };
+}
+
+export default function QuotationPerformance({ data }: QuotationProps) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 h-full flex flex-col">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-bold text-gray-800">Quotation Performance</h3>
-        <button className="flex items-center gap-1 text-xs text-gray-500 hover:bg-gray-50 px-2 py-1 rounded">
-          This Month <ChevronDown size={14} />
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 xl:p-5 h-full flex flex-col">
+      
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4 gap-2">
+        <h3 className="font-bold text-gray-800 text-sm xl:text-sm whitespace-nowrap truncate">Quotation Performance</h3>
+        <button className="flex items-center gap-1.5 text-[10px] xl:text-xs text-gray-600 font-medium bg-white hover:bg-gray-50 px-2.5 py-1.5 border border-gray-200 rounded-md shadow-sm shrink-0 transition-colors">
+          This Month <ChevronDown size={14} className="text-gray-400" />
         </button>
       </div>
 
-      <div className="flex-1 flex flex-col gap-3">
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-500">Quotations Created</span>
-          <span className="font-semibold text-gray-800">146</span>
+      {/* List Items */}
+      <div className="flex-1 flex flex-col mt-2">
+        <div className="flex justify-between items-center pb-3 mb-3 border-b border-gray-100 text-xs xl:text-sm">
+          <span className="text-gray-500 font-medium">Quotations Created</span>
+          <span className="font-bold text-gray-800">{data?.quotations_created || 0}</span>
         </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-500">Total Quotation Value</span>
-          <span className="font-semibold text-gray-800">₹42.80L</span>
+        
+        <div className="flex justify-between items-center pb-3 mb-3 border-b border-gray-100 text-xs xl:text-sm">
+          <span className="text-gray-500 font-medium">Total Quotation Value</span>
+          <span className="font-bold text-gray-800">{data?.total_quotation_value || '₹0'}</span>
         </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-500">Accepted</span>
-          <span className="font-semibold text-emerald-500">28</span>
+        
+        <div className="flex justify-between items-center pb-3 mb-3 border-b border-gray-100 text-xs xl:text-sm">
+          <span className="text-gray-500 font-medium">Accepted</span>
+          <span className="font-bold text-emerald-600">{data?.accepted || 0}</span>
         </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-500">Pending</span>
-          <span className="font-semibold text-orange-500">63</span>
+        
+        <div className="flex justify-between items-center pb-3 mb-3 border-b border-gray-100 text-xs xl:text-sm">
+          <span className="text-gray-500 font-medium">Pending</span>
+          <span className="font-bold text-orange-500">{data?.pending || 0}</span>
         </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-500">Lost / Rejected</span>
-          <span className="font-semibold text-rose-500">19</span>
+        
+        <div className="flex justify-between items-center pb-3 text-xs xl:text-sm">
+          <span className="text-gray-500 font-medium">Lost / Rejected</span>
+          <span className="font-bold text-rose-500">{data?.lost_rejected || 0}</span>
         </div>
       </div>
 
-      <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-2">
-        <div className="flex gap-4">
-          <div>
-            <p className="text-[10px] text-gray-400">Conversion Rate</p>
-            <p className="text-sm font-bold text-gray-800">19.2%</p>
-          </div>
-          <div>
-            <p className="text-[10px] text-gray-400">Avg. Quotation Value</p>
-            <p className="text-sm font-bold text-gray-800">₹29,315</p>
-          </div>
+      {/* Footer - Stacked layout to prevent overflow with large values */}
+      <div className="flex justify-between pt-4 border-t border-gray-100 mt-1 gap-2">
+        {/* Conversion Rate Group */}
+        <div className="flex flex-col min-w-0">
+          <span className="text-[10px] xl:text-xs text-gray-500 font-medium">Conversion Rate</span>
+          <span className="text-sm xl:text-base font-bold text-gray-800 mt-0.5 truncate">{data?.conversion_rate || 0}%</span>
+        </div>
+        
+        {/* Avg. Quotation Value Group */}
+        <div className="flex flex-col items-end min-w-0">
+          <span className="text-[10px] xl:text-xs text-gray-500 font-medium">Avg. Quotation Value</span>
+          <span className="text-sm xl:text-base font-bold text-gray-800 mt-0.5 truncate">{data?.avg_quotation_value || '₹0'}</span>
         </div>
       </div>
+      
     </div>
   );
 }

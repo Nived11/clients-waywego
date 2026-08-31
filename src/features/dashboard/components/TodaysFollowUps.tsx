@@ -1,47 +1,59 @@
-import { Phone, MessageCircle, ExternalLink } from "lucide-react";
+import { Phone, MessageCircle, ExternalLink, MoreVertical } from "lucide-react";
 
-export default function TodaysFollowUps() {
-  const data = [
-    { customer: "Rahul Mathew", dest: "Kerala", exec: "Akhil", time: "10:30 AM", status: "Due", statusColor: "bg-rose-100 text-rose-600" },
-    { customer: "Nisha Raj", dest: "Dubai", exec: "Fathima", time: "11:00 AM", status: "Due", statusColor: "bg-rose-100 text-rose-600" },
-    { customer: "Jithin Jose", dest: "Kashmir", exec: "Amal", time: "02:30 PM", status: "Pending", statusColor: "bg-orange-100 text-orange-600" },
-  ];
+interface FollowUpData {
+  id: number;
+  customer: string;
+  phone: string;
+  destination: string;
+  executive: string;
+  time: string;
+  status: string;
+}
+
+export default function TodaysFollowUps({ followups = [] }: { followups?: FollowUpData[] }) {
+  const getStatusColor = (status: string) => {
+    return status.toLowerCase() === 'due' ? 'bg-rose-100 text-rose-600' : 'bg-orange-100 text-orange-600';
+  };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 h-full">
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 h-full flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-bold text-gray-800">Today's Follow-ups</h3>
-        <button className="text-xs border border-gray-200 px-2 py-1 rounded hover:bg-gray-50">View All</button>
+        <button className="text-xs border border-gray-200 px-3 py-1.5 rounded-md hover:bg-gray-50 transition-colors">View All</button>
       </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs">
+      
+      {/* overflow-x-auto and custom scrollbar styles can be applied here */}
+      <div className="overflow-x-auto flex-1">
+        {/* Added min-w-max to prevent squishing */}
+        <table className="w-full text-left text-xs min-w-max">
           <thead className="text-gray-400 border-b border-gray-100">
             <tr>
-              <th className="pb-2 font-medium">Customer</th>
-              <th className="pb-2 font-medium">Destination</th>
-              <th className="pb-2 font-medium">Executive</th>
-              <th className="pb-2 font-medium">Time</th>
-              <th className="pb-2 font-medium">Status</th>
-              <th className="pb-2 font-medium">Action</th>
+              <th className="pb-3 font-medium whitespace-nowrap pr-4">Customer</th>
+              <th className="pb-3 font-medium whitespace-nowrap px-4">Destination</th>
+              <th className="pb-3 font-medium whitespace-nowrap px-4">Executive</th>
+              <th className="pb-3 font-medium whitespace-nowrap px-4">Time</th>
+              <th className="pb-3 font-medium whitespace-nowrap px-4">Status</th>
+              <th className="pb-3 font-medium whitespace-nowrap pl-4">Action</th>
             </tr>
           </thead>
           <tbody>
-            {data.map((row, idx) => (
-              <tr key={idx} className="border-b border-gray-50 last:border-0">
-                <td className="py-3 text-gray-800 font-medium">{row.customer}</td>
-                <td className="py-3 text-gray-600">{row.dest}</td>
-                <td className="py-3 text-gray-600">{row.exec}</td>
-                <td className="py-3 text-gray-800 font-medium">{row.time}</td>
-                <td className="py-3">
-                  <span className={`px-2 py-1 rounded-md text-[10px] font-bold ${row.statusColor}`}>{row.status}</span>
+            {followups.length > 0 ? followups.map((row) => (
+              <tr key={row.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors">
+                {/* Added whitespace-nowrap and padding to all cells */}
+                <td className="py-3.5 text-gray-800 font-semibold capitalize whitespace-nowrap pr-4">{row.customer}</td>
+                <td className="py-3.5 text-gray-600 whitespace-nowrap px-4">{row.destination}</td>
+                <td className="py-3.5 text-gray-600 whitespace-nowrap px-4">{row.executive}</td>
+                <td className="py-3.5 text-gray-800 font-medium whitespace-nowrap px-4">{row.time}</td>
+                <td className="py-3.5 whitespace-nowrap px-4">
+                  <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold ${getStatusColor(row.status)}`}>{row.status}</span>
                 </td>
-                <td className="py-3 flex items-center gap-2 text-gray-400">
-                  <Phone size={14} className="hover:text-emerald-500 cursor-pointer" />
-                  <MessageCircle size={14} className="hover:text-emerald-500 cursor-pointer" />
-                  <ExternalLink size={14} className="hover:text-blue-500 cursor-pointer" />
+                <td className="py-3.5 flex items-center gap-3 text-gray-400 whitespace-nowrap pl-4">
+                  <Phone size={15} className="hover:text-emerald-500 cursor-pointer transition-colors" />
+                  <MessageCircle size={15} className="hover:text-emerald-500 cursor-pointer transition-colors" />
+                  <ExternalLink size={15} className="hover:text-blue-500 cursor-pointer transition-colors" />
                 </td>
               </tr>
-            ))}
+            )) : <tr><td colSpan={6} className="py-6 text-center text-gray-400">No follow-ups for today</td></tr>}
           </tbody>
         </table>
       </div>
