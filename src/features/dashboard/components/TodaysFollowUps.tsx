@@ -26,7 +26,7 @@ export default function TodaysFollowUps({ followups = [] }: { followups?: Follow
       <div className="overflow-x-auto flex-1">
         {/* Added min-w-max to prevent squishing */}
         <table className="w-full text-left text-xs min-w-max">
-          <thead className="text-gray-400 border-b border-gray-100">
+          <thead className="text-gray-600 border-b border-gray-100">
             <tr>
               <th className="pb-3 font-medium whitespace-nowrap pr-4">Customer</th>
               <th className="pb-3 font-medium whitespace-nowrap px-4">Destination</th>

@@ -33,7 +33,7 @@ export default function RecentQuotations({ quotations = [] }: RecentQuotationsPr
       
       <div className="overflow-x-auto flex-1">
         <table className="w-full text-left text-xs min-w-max">
-          <thead className="text-gray-400 border-b border-gray-100">
+          <thead className="text-gray-600 border-b border-gray-100">
             <tr>
               <th className="pb-3 font-medium whitespace-nowrap pr-4">Quotation No.</th>
               <th className="pb-3 font-medium whitespace-nowrap px-4">Customer</th>
@@ -66,7 +66,7 @@ export default function RecentQuotations({ quotations = [] }: RecentQuotationsPr
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="py-6 text-center text-gray-400">No recent quotations found</td>
+                <td colSpan={6} className="py-6 text-center text-gray-600">No recent quotations found</td>
               </tr>
             )}
           </tbody>
