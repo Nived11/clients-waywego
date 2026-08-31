@@ -72,12 +72,13 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           {isOpen ? (
             <div className="relative w-full h-full flex items-center justify-between px-4">
               <Image 
-                src="/travel_hope.png" 
+                src="/travelhope.png" 
                 alt="Travel Hope Logo" 
                 width={140} 
                 height={40} 
                 className="object-contain"
                 priority 
+                unoptimized
               />
               <button onClick={() => setIsOpen(false)} className="lg:hidden text-gray-400 hover:text-white">
                 <X size={20} />
