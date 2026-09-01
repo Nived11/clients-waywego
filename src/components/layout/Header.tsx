@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Search, Plus, Bell, ChevronDown, LogOut, User, Settings } from "lucide-react";
+import { Search, Bell, ChevronDown, LogOut, User, Settings, FileText, UserPlus } from "lucide-react";
 import { useLogout } from "@/features/auth/hooks/useLogout"; // Path correct aakkuka
 import { ConfirmModal } from "@/components/ui/ConfirmModal"; // Path correct aakkuka
 
@@ -11,8 +11,9 @@ interface HeaderProps {
 }
 
 export default function Header({ toggleSidebar, isOpen }: HeaderProps) {
-  // State for Dropdown and Modal
+  // State for Dropdowns and Modal
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false); // New state for Quick Add
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -20,7 +21,7 @@ export default function Header({ toggleSidebar, isOpen }: HeaderProps) {
   // Custom Hook for logout logic
   const { logout, loading: isLoggingOut } = useLogout();
 
-  // Handle click outside to close dropdown
+  // Handle click outside to close profile dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -45,7 +46,7 @@ export default function Header({ toggleSidebar, isOpen }: HeaderProps) {
         <div className="flex items-center">
           <button 
             onClick={toggleSidebar}
-            className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -74,14 +75,41 @@ export default function Header({ toggleSidebar, isOpen }: HeaderProps) {
 
         {/* Right: Actions & Profile */}
         <div className="flex items-center gap-3 lg:gap-5 shrink-0">
-          <div className="flex items-center gap-2">
-            <button className="md:hidden w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-full transition">
+          <div className="flex items-center gap-3">
+            <button className="md:hidden w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-full transition cursor-pointer">
                <Search size={18} />
             </button>
-            <button className="w-8 h-8 flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded-full transition shadow-sm">
-              <Plus size={18} />
-            </button>
-            <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-full transition relative">
+            
+            {/* Quick Add Dropdown Button */}
+            <div className="relative">
+              <button 
+                onClick={() => setIsQuickAddOpen(!isQuickAddOpen)}
+                onBlur={() => setTimeout(() => setIsQuickAddOpen(false), 200)}
+                className="flex items-center gap-2 bg-[#0994a4] hover:bg-[#077d8a] text-white px-3.5 py-1.5 rounded-lg transition-colors shadow-sm cursor-pointer"
+              >
+                {/* Custom SVG matching the diamond icon from image */}
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="3" transform="rotate(45 12 12)" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+                <span className="text-[13px] font-bold tracking-wide">Quick Add</span>
+                <ChevronDown size={15} strokeWidth={2.5} />
+              </button>
+
+              {/* Quick Add Dropdown Menu */}
+              {isQuickAddOpen && (
+                <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-100 rounded-xl shadow-lg z-50 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <button className="w-full text-left px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2.5 transition-colors cursor-pointer">
+                    <FileText size={14} className="text-blue-500" /> Add Query
+                  </button>
+                  <button className="w-full text-left px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2.5 transition-colors cursor-pointer">
+                    <UserPlus size={14} className="text-emerald-500" /> Add Lead
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-full transition relative cursor-pointer">
               <Bell size={18} />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 border border-white rounded-full"></span>
             </button>
@@ -105,7 +133,7 @@ export default function Header({ toggleSidebar, isOpen }: HeaderProps) {
               <ChevronDown size={14} className={`text-gray-400 hidden sm:block transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
             </div>
 
-            {/* Dropdown Menu */}
+            {/* Profile Dropdown Menu */}
             {isDropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                 
@@ -115,11 +143,11 @@ export default function Header({ toggleSidebar, isOpen }: HeaderProps) {
                   <p className="text-[10px] text-gray-500">Client Admin</p>
                 </div>
 
-                <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors">
+                <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors cursor-pointer">
                   <User size={16} className="text-gray-400" />
                   My Profile
                 </button>
-                <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors">
+                <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors cursor-pointer">
                   <Settings size={16} className="text-gray-400" />
                   Settings
                 </button>
@@ -131,7 +159,7 @@ export default function Header({ toggleSidebar, isOpen }: HeaderProps) {
                     setIsDropdownOpen(false);
                     setIsLogoutModalOpen(true);
                   }}
-                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
+                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors cursor-pointer"
                 >
                   <LogOut size={16} />
                   Log Out

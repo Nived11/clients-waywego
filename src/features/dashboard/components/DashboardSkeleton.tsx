@@ -168,7 +168,7 @@ export default function DashboardSkeleton() {
               <div className="h-2 bg-gray-100 w-full rounded-full"></div>
             </div>
           </div>
-        </div>
+        </div> 
       </div>
 
     </div>
