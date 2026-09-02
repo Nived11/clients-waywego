@@ -30,7 +30,7 @@ export const DashboardMain = ({ tenantName }: { tenantName: string }) => {
     recent_quotations, upcoming_departures, payments_overview 
   } = data;
 
-  // Change text സ്പ്ലിറ്റ് ചെയ്യാനുള്ള ചെറിയ ഫംഗ്ഷൻ (eg: "+500% from yesterday" -> ["+500%", "from yesterday"])
+  // Change text സ്പ്ലിറ്റ് ചെയ്യാനുള്ള ചെറിയ ഫംഗ്ഷൻ
   const parseChange = (text: string) => {
     if (!text) return { val: "", desc: "" };
     const parts = text.split(" ");
@@ -47,14 +47,16 @@ export const DashboardMain = ({ tenantName }: { tenantName: string }) => {
             {tenant?.company_name || tenantName} <span className="text-xl">👋</span>
           </h1>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <button className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition shadow-sm">
+        
+        {/* മൊബൈലിൽ ഒരൊറ്റ വരിയിൽ വരാൻ flex-row, w-full, flex-1 എന്നിവ നൽകി */}
+        <div className="flex flex-row items-center justify-between md:justify-end gap-2 sm:gap-3 w-full md:w-auto mt-2 md:mt-0">
+          <button className="flex-1 md:flex-none flex items-center justify-center gap-1.5 sm:gap-2 bg-white border border-gray-200 text-gray-700 px-2 sm:px-4 py-2 rounded-lg text-[11px] sm:text-sm font-bold hover:bg-gray-50 transition shadow-sm whitespace-nowrap">
             <span>{tenant?.current_date || "Today"}</span>
-            <Calendar size={16} className="text-gray-400 ml-2" />
+            <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 ml-1 sm:ml-2" strokeWidth={2.5} />
           </button>
-          <button className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition shadow-sm">
+          <button className="flex-1 md:flex-none flex items-center justify-center gap-1.5 sm:gap-2 bg-white border border-gray-200 text-gray-700 px-2 sm:px-4 py-2 rounded-lg text-[11px] sm:text-sm font-bold hover:bg-gray-50 transition shadow-sm whitespace-nowrap">
             <span>Custom Range</span>
-            <ChevronDown size={16} className="text-gray-400" />
+            <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400" strokeWidth={2.5} />
           </button>
         </div>
       </div>
@@ -86,10 +88,28 @@ export const DashboardMain = ({ tenantName }: { tenantName: string }) => {
         <div className="lg:col-span-4"><PaymentsOverview data={payments_overview} /></div>
       </div>
 
-       <div className="flex justify-between items-center pt-6 mt-8 border-t border-gray-200 text-xs text-gray-500 font-medium">
-         <p>Way We Go CRM <span className="mx-2">•</span> Powered by <span className="text-blue-600 font-bold tracking-wider">KAELIXO</span></p>
-         <p className="flex items-center gap-1 cursor-pointer hover:text-gray-700 transition">Last updated: Just now <span className="text-base leading-none">⟳</span></p>
-       </div>
+      {/* Responsive Footer */}
+      <div className="pt-6 mt-8 border-t border-gray-200">
+        
+        {/* Desktop View */}
+        <div className="hidden sm:flex justify-between items-center text-xs text-gray-500 font-medium">
+          <p>Way We Go CRM <span className="mx-2">•</span> Powered by <span className="text-blue-600 font-bold tracking-wider">KAELIXO</span></p>
+          <p className="flex items-center gap-1 cursor-pointer hover:text-gray-700 transition">Last updated: Just now <span className="text-base leading-none">⟳</span></p>
+        </div>
+
+        {/* Mobile View */}
+        <div className="flex flex-col sm:hidden text-[11px] text-gray-500 font-medium gap-3">
+          <div className="flex justify-between items-center w-full">
+            <p>Way We Go CRM</p>
+            <p className="flex items-center gap-1 cursor-pointer hover:text-gray-700 transition">Last updated: Just now <span className="text-base leading-none">⟳</span></p>
+          </div>
+          <div className="text-center w-full">
+            <p>Powered by <span className="text-blue-600 font-bold tracking-wider">KAELIXO</span></p>
+          </div>
+        </div>
+
+      </div>
+
     </div>
   );
 };

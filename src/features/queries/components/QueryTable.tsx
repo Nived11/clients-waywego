@@ -28,12 +28,11 @@ export default function QueryTable() {
     { id: "Q-2025-0243", customer: "Suresh B", phone: "+91 90000 44556", dest: "Bali", days: "4N/5D", date: "23 May 2025", source: "WhatsApp", sIcon: WhatsAppIcon, sColor: "text-emerald-500", assignee: "Nisha R", priority: "Medium", pColor: "text-orange-600 bg-orange-100", status: "Follow-up", sBadge: "text-amber-600 bg-amber-100", lastFollow: "17 May 2025\n10:05 AM" },
     { id: "Q-2025-0242", customer: "Fatima Ali", phone: "+91 81234 56701", dest: "Singapore", days: "3N/4D", date: "30 Jun 2025", source: "Website", sIcon: Globe, sColor: "text-indigo-800", assignee: "Amal J", priority: "Low", pColor: "text-emerald-600 bg-emerald-100", status: "Confirmed", sBadge: "text-emerald-600 bg-emerald-100", lastFollow: "16 May 2025\n03:30 PM" },
     { id: "Q-2025-0241", customer: "Vikas Sharma", phone: "+91 95678 12345", dest: "Kerala", days: "3N/4D", date: "12 Jun 2025", source: "Google Ads", sIcon: Globe, sColor: "text-amber-500", assignee: "Thomas K", priority: "Medium", pColor: "text-orange-600 bg-orange-100", status: "Lost", sBadge: "text-rose-600 bg-rose-100", lastFollow: "15 May 2025\n05:10 PM" },
-    { id: "Q-2025-0239", customer: "Aswin", phone: "+91 95678 12345", dest: "Kerala", days: "3N/4D", date: "12 Jun 2025", source: "WhatsApp", sIcon: WhatsAppIcon, sColor: "text-emerald-500", assignee: "Thomas K", priority: "Medium", pColor: "text-orange-600 bg-orange-100", status: "Lost", sBadge: "text-rose-600 bg-rose-100", lastFollow: "15 May 2025\n05:10 PM" },
-    { id: "Q-2025-0238", customer: "Jose", phone: "+91 95678 12345", dest: "Kerala", days: "3N/4D", date: "12 Jun 2025", source: "Google Ads", sIcon: Globe, sColor: "text-amber-500", assignee: "Thomas K", priority: "Medium", pColor: "text-orange-600 bg-orange-100", status: "Lost", sBadge: "text-rose-600 bg-rose-100", lastFollow: "15 May 2025\n05:10 PM" },
+    { id: "Q-2025-0241", customer: "Vikas Sharma", phone: "+91 95678 12345", dest: "Kerala", days: "3N/4D", date: "12 Jun 2025", source: "Google Ads", sIcon: Globe, sColor: "text-amber-500", assignee: "Thomas K", priority: "Medium", pColor: "text-orange-600 bg-orange-100", status: "Lost", sBadge: "text-rose-600 bg-rose-100", lastFollow: "15 May 2025\n05:10 PM" },
+    { id: "Q-2025-0241", customer: "Vikas Sharma", phone: "+91 95678 12345", dest: "Kerala", days: "3N/4D", date: "12 Jun 2025", source: "Google Ads", sIcon: Globe, sColor: "text-amber-500", assignee: "Thomas K", priority: "Medium", pColor: "text-orange-600 bg-orange-100", status: "Lost", sBadge: "text-rose-600 bg-rose-100", lastFollow: "15 May 2025\n05:10 PM" },
   ];
 
   return (
-    // Only kept layout classes. Styling is now handled by the parent QueryMain.
     <div className="flex flex-col flex-1 overflow-hidden h-full">
       
       {/* Tabs */}
@@ -126,31 +125,31 @@ export default function QueryTable() {
         </table>
       </div>
       
-      {/* Centered Pagination Layout */}
-      <div className="border-t border-gray-100 p-4 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-medium text-gray-500 mt-auto bg-white">
+      {/* Centered Pagination Layout with Mobile Reordering */}
+      <div className="border-t border-gray-100 p-4 py-6 sm:py-8 flex flex-row flex-wrap sm:flex-nowrap items-center justify-between gap-y-4 sm:gap-4 text-xs font-medium text-gray-500 mt-auto bg-white">
         
-        {/* Left: Info */}
-        <div className="w-full sm:w-1/3 text-left">
-          <p className="whitespace-nowrap">Showing 1 to 10 of 248 entries</p>
+        {/* Left: Info - Left on both Mobile & Desktop */}
+        <div className="w-1/2 sm:w-1/3 order-1 text-left">
+          <p className="whitespace-nowrap truncate sm:overflow-visible">Showing 1 to 10 of 248</p>
         </div>
 
-        {/* Center: Pagination Buttons */}
-        <div className="w-full sm:w-1/3 flex items-center justify-center gap-1.5">
-          <button className="w-7 h-7 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors">&lt;</button>
-          <button className="w-7 h-7 rounded-md bg-blue-600 text-white font-bold flex items-center justify-center shadow-sm">1</button>
-          <button className="w-7 h-7 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors">2</button>
-          <button className="w-7 h-7 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors">3</button>
-          <span className="px-1 text-gray-400">...</span>
-          <button className="w-7 h-7 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors">31</button>
-          <button className="w-7 h-7 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors">&gt;</button>
-        </div>
-
-        {/* Right: Dropdown */}
-        <div className="w-full sm:w-1/3 flex justify-end">
-          <div className="flex items-center gap-2 border border-gray-200 rounded-md px-3 py-1.5 hover:bg-gray-50 cursor-pointer transition-colors">
-            <span className="text-gray-700 font-semibold">10 / page</span>
-            <ChevronDown size={14} className="text-gray-400" />
+        {/* Right: Dropdown - Right on Mobile (order-2), Right on Desktop (order-3) */}
+        <div className="w-1/2 sm:w-1/3 order-2 sm:order-3 flex justify-end">
+          <div className="flex items-center gap-2 border border-gray-200 rounded-md px-2 sm:px-3 py-1.5 hover:bg-gray-50 cursor-pointer transition-colors">
+            <span className="text-gray-700 font-semibold whitespace-nowrap">10 / page</span>
+            <ChevronDown size={14} className="text-gray-400 shrink-0" />
           </div>
+        </div>
+
+        {/* Center: Pagination Buttons - Center on Mobile (order-3), Center on Desktop (order-2) */}
+        <div className="w-full sm:w-1/3 order-3 sm:order-2 flex items-center justify-center gap-1 sm:gap-1.5 pt-1 sm:pt-0">
+          <button className="w-7 h-7 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">&lt;</button>
+          <button className="w-7 h-7 rounded-md bg-blue-600 text-white font-bold flex items-center justify-center shadow-sm cursor-pointer">1</button>
+          <button className="w-7 h-7 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">2</button>
+          <button className="hidden sm:flex w-7 h-7 rounded-md border border-gray-200 items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">3</button>
+          <span className="px-1 text-gray-400">...</span>
+          <button className="w-7 h-7 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">31</button>
+          <button className="w-7 h-7 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">&gt;</button>
         </div>
 
       </div>

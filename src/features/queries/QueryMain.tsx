@@ -6,12 +6,15 @@ import QueryStats from "./components/QueryStats";
 import QueryFilters from "./components/QueryFilters";
 import QueryTable from "./components/QueryTable";
 import QuerySidebar from "./components/QuerySidebar";
+import AddQueryForm from "./components/AddQueryForm";
 
 export const QueryMain = ({ tenantName }: { tenantName: string }) => {
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [isAddQueryOpen, setIsAddQueryOpen] = useState(false);
 
   return (
+    <>
     <div className="flex flex-col gap-6 w-full max-w-[1600px] mx-auto pb-6">
       
       {/* 1. Header */}
@@ -21,23 +24,23 @@ export const QueryMain = ({ tenantName }: { tenantName: string }) => {
           <p className="text-gray-500 text-sm mt-1">Manage all travel enquiries and assignments in one place.</p>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           
           {/* Date Button with Calendar Dropdown UI */}
           <div className="relative">
             <button 
               onClick={() => setIsCalendarOpen(!isCalendarOpen)}
               onBlur={() => setTimeout(() => setIsCalendarOpen(false), 200)}
-              className="flex items-center gap-2.5 bg-white border border-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-50 shadow-sm transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 sm:gap-2.5 bg-white border border-gray-200 text-gray-800 px-2.5 sm:px-4 py-2 rounded-lg text-[11px] sm:text-sm font-bold hover:bg-gray-50 shadow-sm transition-colors cursor-pointer whitespace-nowrap"
             >
               <span>14 May 2025 - 20 May 2025</span>
-              <Calendar size={16} className="text-slate-600" strokeWidth={2} />
+              <Calendar className="text-slate-600 w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2} />
             </button>
 
             {/* Tailwind Mockup Calendar Popup */}
             {isCalendarOpen && (
               <div 
-                className="absolute right-0 mt-2 w-72 bg-white border border-gray-100 rounded-2xl shadow-xl z-20 p-4 animate-in fade-in slide-in-from-top-2 duration-200 cursor-default"
+                className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-72 bg-white border border-gray-100 rounded-2xl shadow-xl z-20 p-4 animate-in fade-in slide-in-from-top-2 duration-200 cursor-default"
                 onClick={(e) => e.stopPropagation()} 
               >
                 {/* Calendar Header */}
@@ -54,7 +57,7 @@ export const QueryMain = ({ tenantName }: { tenantName: string }) => {
                     <div key={d} className="font-bold text-gray-600 mb-1">{d}</div>
                   ))}
                   
-                  {/* Empty slots for start of month (May 2025 starts on Thursday) */}
+                  {/* Empty slots for start of month */}
                   <div></div><div></div><div></div><div></div>
                   
                   {/* Dates 1 to 31 */}
@@ -94,16 +97,16 @@ export const QueryMain = ({ tenantName }: { tenantName: string }) => {
             <button 
               onClick={() => setIsExportOpen(!isExportOpen)}
               onBlur={() => setTimeout(() => setIsExportOpen(false), 200)}
-              className="flex items-center gap-2 bg-white border border-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-50 shadow-sm transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 sm:gap-2 bg-white border border-gray-200 text-gray-800 px-2.5 sm:px-4 py-2 rounded-lg text-[11px] sm:text-sm font-bold hover:bg-gray-50 shadow-sm transition-colors cursor-pointer whitespace-nowrap"
             >
-              <Download size={16} className="text-slate-600" strokeWidth={2} />
+              <Download className="text-slate-600 w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2} />
               <span>Export</span>
-              <ChevronDown size={16} className="text-slate-600" strokeWidth={2} />
+              <ChevronDown className="text-slate-600 w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2} />
             </button>
 
             {/* Dropdown Menu */}
             {isExportOpen && (
-              <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-100 rounded-xl shadow-lg z-20 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-44 bg-white border border-gray-100 rounded-xl shadow-lg z-20 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
                 <button className="w-full text-left px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2.5 transition-colors cursor-pointer">
                   <FileText size={14} className="text-rose-500" /> Export as PDF
                 </button>
@@ -132,7 +135,7 @@ export const QueryMain = ({ tenantName }: { tenantName: string }) => {
         
         {/* Left Side - Combined Filters & Table without gap */}
         <div className="flex-1 flex flex-col min-w-0 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <QueryFilters />
+          <QueryFilters onOpenAddQuery={() => setIsAddQueryOpen(true)} />
           <QueryTable />
         </div>
 
@@ -143,12 +146,34 @@ export const QueryMain = ({ tenantName }: { tenantName: string }) => {
 
       </div>
 
-      {/* 4. Footer */}
-      <div className="flex justify-between items-center pt-6 mt-4 border-t border-gray-200 text-xs text-gray-500 font-medium">
-        <p>Way We Go CRM <span className="mx-2">•</span> Powered by <span className="text-blue-600 font-bold tracking-wider">KAELIXO</span></p>
-        <p className="flex items-center gap-1">Last updated: Just now</p>
+      {/* 4. Footer - Made Responsive */}
+      <div className="pt-6 mt-4 border-t border-gray-200">
+        
+        {/* Desktop View */}
+        <div className="hidden sm:flex justify-between items-center text-xs text-gray-500 font-medium">
+          <p>Way We Go CRM <span className="mx-2">•</span> Powered by <span className="text-blue-600 font-bold tracking-wider">KAELIXO</span></p>
+          <p>Last updated: Just now</p>
+        </div>
+
+        {/* Mobile View */}
+        <div className="flex flex-col sm:hidden text-[11px] text-gray-500 font-medium gap-3">
+          <div className="flex justify-between items-center w-full">
+            <p>Way We Go CRM</p>
+            <p>Last updated: Just now</p>
+          </div>
+          <div className="text-center w-full">
+            <p>Powered by <span className="text-blue-600 font-bold tracking-wider">KAELIXO</span></p>
+          </div>
+        </div>
+
       </div>
       
     </div>
+    <AddQueryForm 
+        isOpen={isAddQueryOpen} 
+        onClose={() => setIsAddQueryOpen(false)} 
+      />
+
+      </>
   );
-};
+};   
