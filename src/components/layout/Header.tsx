@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Search, Bell, ChevronDown, LogOut, User, Settings, FileText, UserPlus } from "lucide-react";
-import { useLogout } from "@/features/auth/hooks/useLogout"; // Path correct aakkuka
-import { ConfirmModal } from "@/components/ui/ConfirmModal"; // Path correct aakkuka
+// MapPin ഐക്കൺ കൂടി ചേർത്തു
+import { Search, Bell, ChevronDown, LogOut, User, Settings, FileText, UserPlus, MapPin } from "lucide-react";
+import Link from "next/link"; // Link ഇംപോർട്ട് ചെയ്തു
+import { useLogout } from "@/features/auth/hooks/useLogout"; 
+import { ConfirmModal } from "@/components/ui/ConfirmModal"; 
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -13,7 +15,7 @@ interface HeaderProps {
 export default function Header({ toggleSidebar, isOpen }: HeaderProps) {
   // State for Dropdowns and Modal
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false); // New state for Quick Add
+  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false); 
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -87,7 +89,6 @@ export default function Header({ toggleSidebar, isOpen }: HeaderProps) {
                 onBlur={() => setTimeout(() => setIsQuickAddOpen(false), 200)}
                 className="flex items-center gap-2 bg-[#0994a4] hover:bg-[#077d8a] text-white px-3.5 py-1.5 rounded-lg transition-colors shadow-sm cursor-pointer"
               >
-                {/* Custom SVG matching the diamond icon from image */}
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="3" y="3" width="18" height="18" rx="3" transform="rotate(45 12 12)" />
                   <circle cx="12" cy="12" r="3" />
@@ -98,13 +99,21 @@ export default function Header({ toggleSidebar, isOpen }: HeaderProps) {
 
               {/* Quick Add Dropdown Menu */}
               {isQuickAddOpen && (
-                <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-100 rounded-xl shadow-lg z-50 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg z-50 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
                   <button className="w-full text-left px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2.5 transition-colors cursor-pointer">
                     <FileText size={14} className="text-blue-500" /> Add Query
                   </button>
                   <button className="w-full text-left px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2.5 transition-colors cursor-pointer">
                     <UserPlus size={14} className="text-emerald-500" /> Add Lead
                   </button>
+                  {/* Add Destination ലിങ്ക് ചേർത്തു */}
+                  <Link 
+                    href="/destinations/add"
+                    onClick={() => setIsQuickAddOpen(false)}
+                    className="w-full text-left px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2.5 transition-colors cursor-pointer"
+                  >
+                    <MapPin size={14} className="text-purple-500" /> Add Destination
+                  </Link>
                 </div>
               )}
             </div>

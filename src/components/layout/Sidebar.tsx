@@ -26,7 +26,8 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     { name: "Leads", icon: Users, href: "/leads" },
     { name: "Queries", icon: MessageSquare, href: "/queries" },
     { name: "Today's Follow-ups", icon: CalendarClock, href: "/follow-ups" },
-    { name: "Destinations", icon: Map, href: "/destinations" },
+    // Destinations-ന് MapPin (Location Icon) കൊടുത്തു
+    { name: "Destinations", icon: MapPin, href: "/destinations" }, 
     { name: "Suppliers", icon: Briefcase, href: "/suppliers" },
     { name: "Hotels", icon: Building2, href: "/hotels" },
     { name: "Houseboats", icon: Ship, href: "/houseboats" },
@@ -37,7 +38,8 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     { name: "Reports", icon: BarChart2, href: "/reports" },
     { name: "Activities", icon: Activity, href: "/activities" },
     { name: "Package Templates", icon: Package, href: "/templates" },
-    { name: "Itinerary Builder", icon: MapPin, href: "/itinerary" },
+    // Itinerary Builder-ന് Map കൊടുത്തു (രണ്ടും ഒന്നാവാതിരിക്കാൻ)
+    { name: "Itinerary Builder", icon: Map, href: "/itinerary" }, 
     { name: "Team & Permissions", icon: Shield, href: "/team" },
   ];
 
@@ -107,13 +109,13 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           {isOpen && <ChevronDown size={14} className="text-gray-400 shrink-0" />}
         </div>
 
-        {/* Navigation Links - Eppozhum Scrollable aakki vekkanam */}
+        {/* Navigation Links */}
         <nav 
           className="flex-1 overflow-y-auto overflow-x-hidden px-2 space-y-1 mt-2 pb-4 custom-scrollbar"
-          onMouseLeave={() => setHoveredTooltip(null)} // Mouse purathu poyal tooltip pokan
+          onMouseLeave={() => setHoveredTooltip(null)} 
         >
           {navItems.map((item, index) => {
-            const isActive = pathname === item.href;
+            const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
 
             return (
               <div 
@@ -121,7 +123,6 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                 className="relative"
                 onMouseEnter={(e) => {
                   if (!isOpen) {
-                    // Hover cheyyumbol icon-nte exact 'top' position kandupidikkunnu
                     const rect = e.currentTarget.getBoundingClientRect();
                     setHoveredTooltip({ name: item.name, top: rect.top + rect.height / 2 });
                   }
@@ -129,7 +130,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
               >
                 <Link
                   href={item.href}
-                  onClick={handleLinkClick} // Mobile click close working here
+                  onClick={handleLinkClick}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors whitespace-nowrap ${
                     isActive 
                       ? "bg-blue-600 text-white font-medium shadow-md shadow-blue-900/20" 
@@ -155,21 +156,17 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           </button>
         </div>
 
-        {/* ======================================= */}
-        {/* MAGIC TRICK: Render Tooltip outside the scroll area! */}
-        {/* ======================================= */}
+        {/* Tooltip */}
         {!isOpen && hoveredTooltip && (
           <div 
             className="fixed z-[100] flex items-center pointer-events-none transition-all duration-75"
             style={{ 
               top: `${hoveredTooltip.top}px`, 
-              left: '70px', // Sidebar-nte width (70px) kazhinju thudangaan
-              transform: 'translateY(-50%)' // Exact center-l nilkkan
+              left: '70px', 
+              transform: 'translateY(-50%)' 
             }}
           >
-            {/* Tooltip arrow (Blue) */}
             <div className="w-0 h-0 border-y-4 border-y-transparent border-r-4 border-r-blue-600 absolute -left-1"></div>
-            {/* Tooltip body (Blue bg, White text) */}
             <div className="bg-blue-600 text-white font-medium text-[11px] uppercase px-3 py-1.5 rounded-md shadow-lg shadow-blue-900/20 whitespace-nowrap tracking-wide">
               {hoveredTooltip.name}
             </div>

@@ -24,7 +24,6 @@ export default function AddQueryForm({ isOpen, onClose }: AddQueryFormProps) {
     onClose();
   };
 
-  // ടൈപ്പ് ചെയ്യുമ്പോൾ ടെക്സ്റ്റ് ഏരിയ വലുതാക്കാനുള്ള ഫംഗ്ഷൻ
   const handleTextareaInput = () => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto"; // ആദ്യം ഹൈറ്റ് റീസെറ്റ് ചെയ്യും

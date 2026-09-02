@@ -122,12 +122,9 @@ export const QueryMain = ({ tenantName }: { tenantName: string }) => {
         </div>
       </div>
 
-      {/* 2. Top Row: Stats on the Left, Blank Space on the Right */}
-      <div className="flex flex-col xl:flex-row gap-6">
-        <div className="flex-1 min-w-0">
-          <QueryStats />
-        </div>
-        <div className="hidden xl:block w-full xl:w-[320px] 2xl:w-[340px] shrink-0"></div>
+      {/* 2. Stats Row - Full Width */}
+      <div className="w-full">
+        <QueryStats />
       </div>
 
       {/* 3. Bottom Row: Filters & Table combined into ONE Card */}
@@ -176,4 +173,4 @@ export const QueryMain = ({ tenantName }: { tenantName: string }) => {
 
       </>
   );
-};   
+};
