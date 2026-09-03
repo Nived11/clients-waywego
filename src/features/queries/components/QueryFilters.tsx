@@ -1,18 +1,38 @@
 import { Search, Filter, RotateCcw, ChevronDown, Plus } from "lucide-react";
 
-// ഇവിടെ പുതിയ prop ചേർത്തു
-interface QueryFiltersProps {
-  onOpenAddQuery: () => void;
+// API യിൽ നിന്നും വരുന്ന ഫിൽറ്റർ ഓപ്ഷനുകളുടെ സ്ട്രക്ച്ചർ
+interface FilterOptions {
+  sources?: { id: number; source_name: string }[];
+  executives?: { id: number; name: string; role: string }[];
+  destinations?: { id: number; name: string }[];
+  priorities?: { value: string; label: string }[];
+  statuses?: { value: string; label: string }[];
 }
 
-export default function QueryFilters({ onOpenAddQuery }: QueryFiltersProps) {
+// Props ൽ filterOptions കൂടി ചേർത്തു
+interface QueryFiltersProps {
+  onOpenAddQuery: () => void;
+  filterOptions?: FilterOptions;
+}
+
+export default function QueryFilters({ onOpenAddQuery, filterOptions }: QueryFiltersProps) {
+  
+  // API ഡാറ്റയിൽ നിന്നും ഡ്രോപ്പ്ഡൗണിലേക്ക് വേണ്ട പേരുകൾ മാത്രം വേർതിരിക്കുന്നു (Mapping)
+  // ഡാറ്റ കിട്ടിയില്ലെങ്കിൽ (loading സമയത്ത്) വെറും empty array [] ആയിരിക്കും.
+  const sourceOptions = filterOptions?.sources?.map(s => s.source_name) || [];
+  const destinationOptions = filterOptions?.destinations?.map(d => d.name) || [];
+  const executiveOptions = filterOptions?.executives?.map(e => e.name) || [];
+  const priorityOptions = filterOptions?.priorities?.map(p => p.label) || [];
+  const statusOptions = filterOptions?.statuses?.map(s => s.label) || [];
+
+  // ഫിൽറ്റർ ലിസ്റ്റ് ഡൈനാമിക് ആയി സെറ്റ് ചെയ്യുന്നു
   const filters = [
-    { label: "Date Range", options: ["14 May - 20 May", "Last 7 Days", "This Month"] },
-    { label: "Source", options: ["All Sources", "Website", "WhatsApp", "Google Ads"] },
-    { label: "Destination", options: ["All Destinations", "Kerala", "Dubai", "Kashmir"] },
-    { label: "Assigned To", options: ["All Executives", "Akhil K", "Nisha R"] },
-    { label: "Priority", options: ["All Priorities", "High", "Medium", "Low"] },
-    { label: "Status", options: ["All Statuses", "New", "Contacted", "Quotation Sent"] },
+    { label: "Date Range", options: ["All Dates", "14 May - 20 May", "Last 7 Days", "This Month"] }, // ഇത് API-യിൽ ഇല്ലാത്തതുകൊണ്ട് ഡീഫോൾട്ട് ആയി കൊടുത്തു
+    { label: "Source", options: ["All Sources", ...sourceOptions] },
+    { label: "Destination", options: ["All Destinations", ...destinationOptions] },
+    { label: "Assigned To", options: ["All Executives", ...executiveOptions] },
+    { label: "Priority", options: ["All Priorities", ...priorityOptions] },
+    { label: "Status", options: ["All Statuses", ...statusOptions] },
   ];
 
   return (
@@ -40,7 +60,7 @@ export default function QueryFilters({ onOpenAddQuery }: QueryFiltersProps) {
             <RotateCcw size={14} /> Reset
           </button>
           
-          {/* ഈ ബട്ടണിൽ onClick കൊടുത്തു */}
+          {/* Add Query Button */}
           <button 
             onClick={onOpenAddQuery}
             className="flex items-center justify-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors shadow-sm cursor-pointer"
