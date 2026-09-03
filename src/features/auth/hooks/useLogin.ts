@@ -30,7 +30,7 @@ export const useLogin = () => {
         // Backend ഒറിജിനൽ sessionid സെറ്റ് ചെയ്തത് കൊണ്ട്,
         // Middleware-ന് മനസ്സിലാവാൻ ഈ ഗേറ്റ് പാസ്സ് കുക്കി സെറ്റ് ചെയ്യുന്നു.
         // ==========================================
-        document.cookie = "is_logged_in=true; path=/; max-age=86400;"; 
+       document.cookie = "is_logged_in=true; path=/;";
         
         router.push('/dashboard'); 
       } else {

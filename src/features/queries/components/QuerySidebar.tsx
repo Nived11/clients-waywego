@@ -1,6 +1,5 @@
 import { Clock, UserX, Flag, Users, Mail, Bell, Download, Upload, User, Inbox, Calendar } from "lucide-react";
 
-// API ഡാറ്റയുടെ സ്ട്രക്ച്ചർ (Types)
 interface SourceData {
   name: string;
   count: number;
@@ -37,7 +36,6 @@ const WhatsAppIcon = ({ size = 18, className = "" }) => (
 
 export default function QuerySidebar({ stageCounts, sources = [], activities = [], insights }: QuerySidebarProps) {
   
-  // ഡൈനാമിക് ആയി ഡോനട്ട് ചാർട്ടിന്റെ ഗ്രേഡിയന്റ് കാൽക്കുലേറ്റ് ചെയ്യുന്നു
   let currentPercent = 0;
   const gradientStops = sources.map(source => {
     const start = currentPercent;
@@ -155,7 +153,6 @@ export default function QuerySidebar({ stageCounts, sources = [], activities = [
           <span className="text-[10px] text-blue-600 font-bold cursor-pointer hover:underline">View all</span>
         </div>
         <div className="space-y-5">
-          {/* ഇവിടെ .slice(0, 3) എന്ന് നൽകി 3 എണ്ണമായി ചുരുക്കി */}
           {activities.length > 0 ? activities.slice(0, 3).map((act, idx) => {
             const colors = ["bg-blue-50 text-blue-600", "bg-emerald-50 text-emerald-600", "bg-purple-50 text-purple-600", "bg-orange-50 text-orange-500", "bg-pink-50 text-pink-500"];
             const colorClass = colors[idx % colors.length];
