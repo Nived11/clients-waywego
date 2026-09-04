@@ -1,5 +1,5 @@
-import { Eye, UserPlus, Phone, FileText, Globe, Infinity, Users, Loader2 } from "lucide-react";
-// നമ്മൾ പുതിയതായി ഉണ്ടാക്കിയ Pagination കോമ്പോണന്റ് ഇംപോർട്ട് ചെയ്യുന്നു (പാത്ത് ശരിയാണോ എന്ന് നോക്കുക)
+import { useState, useEffect } from "react";
+import { Eye, UserPlus, Phone, FileText, Globe, Infinity, Users, Loader2, Check } from "lucide-react"; // Check icon കൂടി ആഡ് ചെയ്തു
 import Pagination from "@/components/ui/Pagination"; 
 
 const WhatsAppIcon = ({ size = 16, className = "" }) => (
@@ -20,6 +20,8 @@ interface QueryTableProps {
 
 export default function QueryTable({ queries, loading, page, limit, totalCount, onPageChange, stageCounts }: QueryTableProps) {
   
+  const [copiedId, setCopiedId] = useState<string | null>(null); // Copy ചെയ്ത ഐഡി ഓർക്കാൻ
+
   const tabs = [
     { name: "All", count: stageCounts?.all || 0, active: true },
     { name: "New", count: stageCounts?.new || 0 },
@@ -59,6 +61,39 @@ export default function QueryTable({ queries, loading, page, limit, totalCount, 
     if (s.includes("confirmed")) return "text-emerald-600 bg-emerald-100";
     if (s.includes("lost") || s.includes("cancel")) return "text-rose-600 bg-rose-100";
     return "text-gray-600 bg-gray-100";
+  };
+
+  // --- ACTIONS LOGIC ---
+  const handleCall = (phone: string) => {
+    if (!phone || phone === '-') return alert("Phone number is not available.");
+    window.location.href = `tel:${phone}`;
+  };
+
+  const handleWhatsApp = (phone: string) => {
+    if (!phone || phone === '-') return alert("Phone number is not available.");
+    const cleanPhone = phone.replace(/[^\d+]/g, ''); // അനാവശ്യ ചിഹ്നങ്ങൾ മാറ്റാൻ
+    window.open(`https://wa.me/${cleanPhone}`, '_blank');
+  };
+
+  const handleCopy = async (data: any) => {
+    const textToCopy = `Query ID: ${data.queryId}
+Customer: ${data.customer} (${data.phone})
+Destination: ${data.dest} (${data.days})
+Travel Date: ${data.date}
+Source: ${data.sourceStr}
+Assigned To: ${data.assignee}
+Priority: ${data.priority}
+Status: ${data.status}
+Last Follow-up: ${data.lastFollow}`;
+
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      setCopiedId(data.queryId);
+      setTimeout(() => setCopiedId(null), 2000); // 2 സെക്കന്റിനു ശേഷം ഐക്കൺ പഴയതുപോലെ ആവാൻ
+    } catch (err) {
+      console.error("Failed to copy:", err);
+      alert("Failed to copy details.");
+    }
   };
 
   return (
@@ -198,21 +233,46 @@ export default function QueryTable({ queries, loading, page, limit, totalCount, 
                     <td className="py-3 px-4 text-[10px] text-gray-600 font-medium whitespace-pre-line leading-relaxed">{lastFollow}</td>
                     <td className="py-3 px-4">
                       <div className="flex items-center justify-center gap-1.5">
-                        <div className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded-md hover:bg-gray-100 cursor-pointer transition-colors">
+                        
+                        {/* Eye (Inactive) */}
+                        <div className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded-md hover:bg-gray-100 cursor-pointer transition-colors" title="View Query">
                           <Eye size={13} className="text-slate-700" strokeWidth={2} />
                         </div>
-                        <div className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded-md hover:bg-gray-100 cursor-pointer transition-colors">
+                        
+                        {/* UserPlus (Inactive) */}
+                        <div className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded-md hover:bg-gray-100 cursor-pointer transition-colors" title="Assign User">
                           <UserPlus size={13} className="text-slate-700" strokeWidth={2} />
                         </div>
-                        <div className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded-md hover:bg-gray-100 cursor-pointer transition-colors">
+                        
+                        {/* Phone (Active) */}
+                        <div 
+                          onClick={() => handleCall(phone)}
+                          className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded-md hover:bg-gray-100 cursor-pointer transition-colors" 
+                          title="Call Customer"
+                        >
                           <Phone size={13} className="text-slate-700" strokeWidth={2} />
                         </div>
-                        <div className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded-md hover:bg-gray-100 cursor-pointer transition-colors">
+                        
+                        {/* WhatsApp (Active) */}
+                        <div 
+                          onClick={() => handleWhatsApp(phone)}
+                          className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded-md hover:bg-green-50 cursor-pointer transition-colors" 
+                          title="WhatsApp Customer"
+                        >
                           <WhatsAppIcon size={14} className="text-[#25D366]" />
                         </div>
-                        <div className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded-md hover:bg-gray-100 cursor-pointer transition-colors">
-                          <FileText size={13} className="text-slate-700" strokeWidth={2} />
+                        
+                        {/* Copy to Clipboard (Active with feedback) */}
+                        <div 
+                          onClick={() => handleCopy({ queryId, customer, phone, dest, days, date, sourceStr, assignee, priority, status, lastFollow })}
+                          className={`w-7 h-7 flex items-center justify-center border rounded-md cursor-pointer transition-all duration-300 ${
+                            copiedId === queryId ? "bg-green-50 border-green-200 text-emerald-600" : "border-gray-200 hover:bg-gray-100 text-slate-700"
+                          }`}
+                          title="Copy Details"
+                        >
+                          {copiedId === queryId ? <Check size={14} strokeWidth={3} /> : <FileText size={13} strokeWidth={2} />}
                         </div>
+                        
                       </div>
                     </td>
                   </tr>
