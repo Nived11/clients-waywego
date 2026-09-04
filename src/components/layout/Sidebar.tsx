@@ -76,7 +76,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                 alt="Travel Hope Logo" 
                 width={140} 
                 height={40} 
-                className="object-contain"
+                className="object-contain brightness-0 invert"
                 priority 
                 unoptimized
               />
