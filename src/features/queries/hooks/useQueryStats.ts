@@ -11,7 +11,7 @@ export const useQueryStats = () => {
     setError(null);
     try {
       const responseData = await getQueryStats();
-      setData(responseData); // നിങ്ങൾ അയച്ച JSON ഡാറ്റ ഇവിടെ സെറ്റ് ആകും
+      setData(responseData); 
     } catch (err: any) {
       setError(err.message || 'Something went wrong!');
     } finally {

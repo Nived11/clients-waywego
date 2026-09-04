@@ -1,6 +1,6 @@
-import { Search, Filter, RotateCcw, ChevronDown, Plus } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, RotateCcw, ChevronDown, Plus, ArrowRight } from "lucide-react";
 
-// API യിൽ നിന്നും വരുന്ന ഫിൽറ്റർ ഓപ്ഷനുകളുടെ സ്ട്രക്ച്ചർ
 interface FilterOptions {
   sources?: { id: number; source_name: string }[];
   executives?: { id: number; name: string; role: string }[];
@@ -9,85 +9,143 @@ interface FilterOptions {
   statuses?: { value: string; label: string }[];
 }
 
-// Props ൽ filterOptions കൂടി ചേർത്തു
 interface QueryFiltersProps {
   onOpenAddQuery: () => void;
   filterOptions?: FilterOptions;
+  onSearch: (term: string) => void;
+  onFilterChange: (key: string, value: string) => void;
+  currentSearch: string;
+  currentFilters: any;
+  onReset: () => void;
 }
 
-export default function QueryFilters({ onOpenAddQuery, filterOptions }: QueryFiltersProps) {
+export default function QueryFilters({ onOpenAddQuery, filterOptions, onSearch, onFilterChange, currentSearch, currentFilters, onReset }: QueryFiltersProps) {
   
-  // API ഡാറ്റയിൽ നിന്നും ഡ്രോപ്പ്ഡൗണിലേക്ക് വേണ്ട പേരുകൾ മാത്രം വേർതിരിക്കുന്നു (Mapping)
-  // ഡാറ്റ കിട്ടിയില്ലെങ്കിൽ (loading സമയത്ത്) വെറും empty array [] ആയിരിക്കും.
-  const sourceOptions = filterOptions?.sources?.map(s => s.source_name) || [];
-  const destinationOptions = filterOptions?.destinations?.map(d => d.name) || [];
-  const executiveOptions = filterOptions?.executives?.map(e => e.name) || [];
-  const priorityOptions = filterOptions?.priorities?.map(p => p.label) || [];
-  const statusOptions = filterOptions?.statuses?.map(s => s.label) || [];
+  const [searchTerm, setSearchTerm] = useState(currentSearch);
+  const [isResetting, setIsResetting] = useState(false);
+  
+  useEffect(() => {
+    setSearchTerm(currentSearch);
+  }, [currentSearch]);
 
-  // ഫിൽറ്റർ ലിസ്റ്റ് ഡൈനാമിക് ആയി സെറ്റ് ചെയ്യുന്നു
+  // SMART SEARCH LOGIC
+  useEffect(() => {
+    if (searchTerm === '' && currentSearch !== '') {
+      const timer = setTimeout(() => {
+        onSearch('');
+      }, 400); 
+      return () => clearTimeout(timer);
+    }
+  }, [searchTerm, currentSearch, onSearch]);
+
+  const handleResetClick = () => {
+    // ആനിമേഷൻ തീരുന്നതുവരെ വീണ്ടും റൺ ആവാതിരിക്കാൻ ഒരു ചെക്ക്
+    if (isResetting) return; 
+
+    setIsResetting(true);
+    setSearchTerm('');
+    onReset();
+    
+    setTimeout(() => {
+      setIsResetting(false);
+    }, 600);
+  };
+
+  const sourceOptions = filterOptions?.sources?.map(s => ({ label: s.source_name, value: s.id.toString() })) || [];
+  const destinationOptions = filterOptions?.destinations?.map(d => ({ label: d.name, value: d.id.toString() })) || [];
+  const executiveOptions = filterOptions?.executives?.map(e => ({ label: e.name, value: e.id.toString() })) || [];
+  const priorityOptions = filterOptions?.priorities?.map(p => ({ label: p.label, value: p.value })) || [];
+  const statusOptions = filterOptions?.statuses?.map(s => ({ label: s.label, value: s.value })) || [];
+
   const filters = [
-    { label: "Date Range", options: ["All Dates", "14 May - 20 May", "Last 7 Days", "This Month"] }, // ഇത് API-യിൽ ഇല്ലാത്തതുകൊണ്ട് ഡീഫോൾട്ട് ആയി കൊടുത്തു
-    { label: "Source", options: ["All Sources", ...sourceOptions] },
-    { label: "Destination", options: ["All Destinations", ...destinationOptions] },
-    { label: "Assigned To", options: ["All Executives", ...executiveOptions] },
-    { label: "Priority", options: ["All Priorities", ...priorityOptions] },
-    { label: "Status", options: ["All Statuses", ...statusOptions] },
+    { key: "date", label: "Date Range", options: [{label: "All Dates", value: ""}, {label: "14 May - 20 May", value: "custom"}, {label: "Last 7 Days", value: "last_7"}, {label: "This Month", value: "this_month"}] },
+    { key: "source", label: "Source", options: [{label: "All Sources", value: ""}, ...sourceOptions] },
+    { key: "destination", label: "Destination", options: [{label: "All Destinations", value: ""}, ...destinationOptions] },
+    { key: "assigned_to", label: "Assigned To", options: [{label: "All Executives", value: ""}, ...executiveOptions] },
+    { key: "priority", label: "Priority", options: [{label: "All Priorities", value: ""}, ...priorityOptions] },
+    { key: "status", label: "Status", options: [{label: "All Statuses", value: ""}, ...statusOptions] },
   ];
 
   return (
-    <div className="p-4 xl:p-5 border-b border-gray-50">
-      <div className="flex flex-wrap items-end justify-between gap-y-4 gap-x-4">
+    <div className="p-4 xl:p-5 border-b border-gray-50 transition-all">
+      
+      {/* Top Row: Search & Reset (Left) --- Add Query (Right) */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
         
-        {/* 1. Search Bar */}
-        <div className="relative flex-1 min-w-[220px] max-w-[650px]">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input 
-            type="text" 
-            placeholder="Search queries..." 
-            className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-shadow"
-          />
+        {/* LEFT SIDE: Search Bar + Reset Button */}
+        <div className="flex items-center gap-3 flex-1 min-w-[300px]">
+          
+          {/* Search Bar */}
+          <div className="relative flex-1 max-w-[650px]">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input 
+              type="text" 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && onSearch(searchTerm)} 
+              placeholder="Search queries..." 
+              className="w-full pl-9 pr-12 py-2 border border-gray-300 rounded-lg text-xs text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-shadow"
+            />
+            {/* Manual Search Button */}
+            <button 
+              onClick={() => onSearch(searchTerm)} 
+              disabled={searchTerm === currentSearch} 
+              className={`absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-md flex items-center justify-center transition-colors shadow-sm ${
+                searchTerm === currentSearch ? 'bg-gray-200 text-gray-500 cursor-default' : 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer'
+              }`}
+            >
+              <ArrowRight size={14} strokeWidth={2.5} />
+            </button>
+          </div>
+
+          {/* Reset Button (Disabled while resetting) */}
+          <button 
+            onClick={handleResetClick} 
+            disabled={isResetting}
+            className="flex items-center justify-center gap-1.5 px-3 py-2 bg-gray-100 text-gray-600 border border-gray-200 rounded-lg text-xs font-bold hover:bg-gray-200 hover:text-gray-800 transition-colors shadow-sm cursor-pointer shrink-0 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            <RotateCcw 
+              size={14} 
+              className={isResetting ? "animate-spin [animation-direction:reverse] text-blue-600" : ""} 
+            /> 
+            <span>Reset</span>
+          </button>
+          
         </div>
 
-        {/* 2. Action Buttons */}
-        <div className="flex items-center justify-between w-full sm:w-auto sm:justify-end gap-2 shrink-0 sm:ml-auto">
-          
-          <button className="flex items-center justify-center gap-1.5 px-3 py-2 bg-white border border-gray-200 text-gray-800 rounded-lg text-xs font-bold hover:bg-gray-50 transition-colors shadow-sm cursor-pointer">
-            <Filter size={14} className="text-blue-600" /> Filters
-          </button>
-          
-          <button className="flex items-center justify-center gap-1.5 px-3 py-2 text-gray-500 rounded-lg text-xs font-medium hover:bg-gray-50 transition-colors cursor-pointer">
-            <RotateCcw size={14} /> Reset
-          </button>
-          
-          {/* Add Query Button */}
+        {/* RIGHT SIDE: Add Query Button */}
+        <div className="flex shrink-0 w-full sm:w-auto mt-2 sm:mt-0">
           <button 
             onClick={onOpenAddQuery}
-            className="flex items-center justify-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors shadow-sm cursor-pointer"
+            className="flex items-center justify-center gap-1.5 px-4 py-2 w-full sm:w-auto bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors shadow-sm cursor-pointer"
           >
             <Plus size={16} /> Add Query
           </button>
-
-        </div>
-        
-        {/* 3. Dropdowns Group */}
-        <div className="flex flex-wrap items-center gap-2 xl:gap-3 flex-[1_1_auto]">
-          {filters.map((filter, idx) => (
-            <div key={idx} className="flex flex-col gap-1 min-w-[100px] flex-1">
-              <span className="text-[10px] text-gray-500 font-medium px-1 ">{filter.label}</span>
-              <div className="relative">
-                <select className="w-full appearance-none text-xs font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg pl-3 pr-7 py-2 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer">
-                  {filter.options.map((opt, i) => (
-                    <option key={i} value={opt}>{opt}</option>
-                  ))}
-                </select>
-                <ChevronDown size={14} className="text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              </div>
-            </div>
-          ))}
         </div>
 
       </div>
+
+      {/* Bottom Row: Dropdowns Group */}
+      <div className="flex flex-wrap items-center gap-2 xl:gap-3 w-full mt-4">
+        {filters.map((filter, idx) => (
+          <div key={idx} className="flex flex-col gap-1 min-w-[120px] flex-1">
+            <span className="text-[10px] text-gray-500 font-medium px-1 ">{filter.label}</span>
+            <div className="relative">
+              <select 
+                value={currentFilters[filter.key] || ""} 
+                onChange={(e) => onFilterChange(filter.key, e.target.value)}
+                className="w-full appearance-none text-xs font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg pl-3 pr-7 py-2 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
+              >
+                {filter.options.map((opt, i) => (
+                  <option key={i} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+              <ChevronDown size={14} className="text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
+          </div>
+        ))}
+      </div>
+
     </div>
   );
 }

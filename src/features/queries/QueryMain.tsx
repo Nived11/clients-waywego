@@ -8,32 +8,34 @@ import QueryTable from "./components/QueryTable";
 import QuerySidebar from "./components/QuerySidebar";
 import AddQueryForm from "./components/AddQueryForm";
 
-// നമ്മൾ ഉണ്ടാക്കിയ ഹുക്ക് ഇംപോർട്ട് ചെയ്യുന്നു
 import { useQueryStats } from "./hooks/useQueryStats"; 
+import { useQueries } from "./hooks/useQueries"; // പുതിയ ഹുക്ക് ഇംപോർട്ട് ചെയ്യുന്നു
+import QuerySkeletonLoading from "./components/QuerySkeletonLoading";
+
 
 export const QueryMain = ({ tenantName }: { tenantName: string }) => {
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isAddQueryOpen, setIsAddQueryOpen] = useState(false);
 
-  // API യിൽ നിന്നും ഡാറ്റ എടുക്കുന്നു
-  const { data, loading, error } = useQueryStats();
+  // Stats API യിൽ നിന്നും ഡാറ്റ എടുക്കുന്നു
+  const { data: statsData, loading: statsLoading, error: statsError } = useQueryStats();
 
-  // ലോഡിങ് ആകുന്ന സമയം കാണിക്കാനുള്ള UI
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] w-full">
-        <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-4" />
-        <p className="text-sm font-medium text-gray-500">Loading queries data...</p>
-      </div>
-    );
+  // Table API യിൽ നിന്നും ഡാറ്റ എടുക്കുന്നു
+const { 
+    queries, loading: queriesLoading, 
+    page, limit, totalCount, search, filters,
+    handlePageChange, handleSearch, handleFilter, resetFilters 
+  } = useQueries();
+
+if (statsLoading) {
+    return <QuerySkeletonLoading />;
   }
 
-  // എറർ വന്നാൽ കാണിക്കാൻ
-  if (error) {
+  if (statsError) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] w-full text-rose-500 font-medium">
-        <p>Error: {error}</p>
+        <p>Error: {statsError}</p>
       </div>
     );
   }
@@ -42,7 +44,7 @@ export const QueryMain = ({ tenantName }: { tenantName: string }) => {
     <>
       <div className="flex flex-col gap-6 w-full max-w-[1600px] mx-auto pb-6">
         
-        {/* 1. Header (പഴയതുപോലെ തന്നെ) */}
+        {/* 1. Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-800">Queries</h1>
@@ -62,7 +64,7 @@ export const QueryMain = ({ tenantName }: { tenantName: string }) => {
                 <Calendar className="text-slate-600 w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2} />
               </button>
 
-              {/* Tailwind Mockup Calendar Popup */}
+              {/* Tailwind Mockup Calendar Popup (നിങ്ങളുടെ പഴയ കോഡ്) */}
               {isCalendarOpen && (
                 <div 
                   className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-72 bg-white border border-gray-100 rounded-2xl shadow-xl z-20 p-4 animate-in fade-in slide-in-from-top-2 duration-200 cursor-default"
@@ -140,24 +142,41 @@ export const QueryMain = ({ tenantName }: { tenantName: string }) => {
           </div>
         </div>
 
-        {/* 2. Stats Row - ഡാറ്റ പാസ്സ് ചെയ്യുന്നു */}
+        {/* 2. Stats Row */}
         <div className="w-full">
-          <QueryStats kpis={data?.kpis} />
+          <QueryStats kpis={statsData?.kpis} />
         </div>
 
         {/* 3. Bottom Row: Filters, Table & Sidebar */}
         <div className="flex flex-col xl:flex-row gap-6">
           
           <div className="flex-1 flex flex-col min-w-0 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <QueryFilters filterOptions={data?.filter_options} onOpenAddQuery={() => setIsAddQueryOpen(true)} />
-            <QueryTable /> {/* ഇത് വേറെ ഒരു API വഴി ആണെങ്കിൽ അത് അവിടെ വിളിക്കാം */}
+           <QueryFilters 
+              filterOptions={statsData?.filter_options} 
+              onOpenAddQuery={() => setIsAddQueryOpen(true)}
+              onSearch={handleSearch} 
+              onFilterChange={handleFilter} 
+              currentSearch={search} // state pass ചെയ്യുന്നു
+              currentFilters={filters} // state pass ചെയ്യുന്നു
+              onReset={resetFilters} // reset function pass ചെയ്യുന്നു
+            />
+            <QueryTable 
+  queries={queries} 
+  loading={queriesLoading}
+  page={page}
+  limit={limit}
+  totalCount={totalCount}
+  onPageChange={handlePageChange}
+  stageCounts={statsData?.stage_counts} 
+/>
           </div>
 
           <div className="w-full xl:w-[320px] 2xl:w-[340px] shrink-0 flex flex-col gap-6">
             <QuerySidebar 
-              stageCounts={data?.stage_counts} 
-              sources={data?.source_breakdown} 
-              activities={data?.recent_activities} 
+              stageCounts={statsData?.stage_counts} 
+              sources={statsData?.source_breakdown} 
+              activities={statsData?.recent_activities} 
+              insights={statsData?.insights}
             />
           </div>
 

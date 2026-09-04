@@ -1,39 +1,68 @@
-import { Eye, UserPlus, Phone, FileText, Globe, Infinity, Users, ChevronDown } from "lucide-react";
+import { Eye, UserPlus, Phone, FileText, Globe, Infinity, Users, Loader2 } from "lucide-react";
+// നമ്മൾ പുതിയതായി ഉണ്ടാക്കിയ Pagination കോമ്പോണന്റ് ഇംപോർട്ട് ചെയ്യുന്നു (പാത്ത് ശരിയാണോ എന്ന് നോക്കുക)
+import Pagination from "@/components/ui/Pagination"; 
 
-// Original WhatsApp Icon Custom Component
 const WhatsAppIcon = ({ size = 16, className = "" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
   </svg>
 );
 
-export default function QueryTable() {
+interface QueryTableProps {
+  queries: any[];
+  loading: boolean;
+  page: number;
+  limit: number;
+  totalCount: number;
+  onPageChange: (page: number) => void;
+  stageCounts?: any; 
+}
+
+export default function QueryTable({ queries, loading, page, limit, totalCount, onPageChange, stageCounts }: QueryTableProps) {
+  
   const tabs = [
-    { name: "All", count: "248", active: true },
-    { name: "New", count: "32" },
-    { name: "Contacted", count: "45" },
-    { name: "Requirement", count: "38" },
-    { name: "Quotation Sent", count: "51" },
-    { name: "Follow-up", count: "42" },
-    { name: "Confirmed", count: "28" },
-    { name: "Lost", count: "12" },
+    { name: "All", count: stageCounts?.all || 0, active: true },
+    { name: "New", count: stageCounts?.new || 0 },
+    { name: "Contacted", count: stageCounts?.contacted || 0 },
+    { name: "Requirement", count: stageCounts?.requirement || 0 },
+    { name: "Quotation Sent", count: stageCounts?.quotation_sent || 0 },
+    { name: "Follow-up", count: stageCounts?.followup || 0 },
+    { name: "Confirmed", count: stageCounts?.confirmed || 0 },
+    { name: "Lost", count: stageCounts?.lost || 0 },
   ];
 
-  const dummyData = [
-    { id: "Q-2025-0248", customer: "Rahul Mathew", phone: "+91 98765 43210", dest: "Kerala", days: "5N/6D", date: "15 Jun 2025", source: "Website", sIcon: Globe, sColor: "text-indigo-800", assignee: "Akhil K", priority: "High", pColor: "text-rose-600 bg-rose-100", status: "New", sBadge: "text-blue-600 bg-blue-100", lastFollow: "-" },
-    { id: "Q-2025-0247", customer: "Nisha Raj", phone: "+91 91234 56789", dest: "Dubai", days: "4N/5D", date: "20 Aug 2025", source: "WhatsApp", sIcon: WhatsAppIcon, sColor: "text-emerald-500", assignee: "Nisha R", priority: "Medium", pColor: "text-orange-600 bg-orange-100", status: "Contacted", sBadge: "text-teal-600 bg-teal-100", lastFollow: "19 May 2025\n2:15 PM" },
-    { id: "Q-2025-0246", customer: "Jithin Jose", phone: "+91 99876 54321", dest: "Kashmir", days: "6N/7D", date: "10 Jul 2025", source: "Meta Ads", sIcon: Infinity, sColor: "text-blue-600", assignee: "Amal J", priority: "High", pColor: "text-rose-600 bg-rose-100", status: "Requirement", sBadge: "text-purple-600 bg-purple-100", lastFollow: "18 May 2025\n11:40 AM" },
-    { id: "Q-2025-0245", customer: "Anand Kumar", phone: "+91 88990 11223", dest: "Maldives", days: "4N/5D", date: "05 Sep 2025", source: "Referral", sIcon: Users, sColor: "text-slate-700", assignee: "Akhil K", priority: "Medium", pColor: "text-orange-600 bg-orange-100", status: "Quotation Sent", sBadge: "text-indigo-600 bg-indigo-100", lastFollow: "18 May 2025\n04:20 PM" },
-    { id: "Q-2025-0244", customer: "Arjun P", phone: "+91 77788 99001", dest: "Thailand", days: "5N/6D", date: "22 May 2025", source: "Website", sIcon: Globe, sColor: "text-indigo-800", assignee: "Thomas K", priority: "Low", pColor: "text-emerald-600 bg-emerald-100", status: "Follow-up", sBadge: "text-amber-600 bg-amber-100", lastFollow: "17 May 2025\n09:15 AM" },
-    { id: "Q-2025-0243", customer: "Suresh B", phone: "+91 90000 44556", dest: "Bali", days: "4N/5D", date: "23 May 2025", source: "WhatsApp", sIcon: WhatsAppIcon, sColor: "text-emerald-500", assignee: "Nisha R", priority: "Medium", pColor: "text-orange-600 bg-orange-100", status: "Follow-up", sBadge: "text-amber-600 bg-amber-100", lastFollow: "17 May 2025\n10:05 AM" },
-    { id: "Q-2025-0242", customer: "Fatima Ali", phone: "+91 81234 56701", dest: "Singapore", days: "3N/4D", date: "30 Jun 2025", source: "Website", sIcon: Globe, sColor: "text-indigo-800", assignee: "Amal J", priority: "Low", pColor: "text-emerald-600 bg-emerald-100", status: "Confirmed", sBadge: "text-emerald-600 bg-emerald-100", lastFollow: "16 May 2025\n03:30 PM" },
-    { id: "Q-2025-0241", customer: "Vikas Sharma", phone: "+91 95678 12345", dest: "Kerala", days: "3N/4D", date: "12 Jun 2025", source: "Google Ads", sIcon: Globe, sColor: "text-amber-500", assignee: "Thomas K", priority: "Medium", pColor: "text-orange-600 bg-orange-100", status: "Lost", sBadge: "text-rose-600 bg-rose-100", lastFollow: "15 May 2025\n05:10 PM" },
-    { id: "Q-2025-0241", customer: "Vikas Sharma", phone: "+91 95678 12345", dest: "Kerala", days: "3N/4D", date: "12 Jun 2025", source: "Google Ads", sIcon: Globe, sColor: "text-amber-500", assignee: "Thomas K", priority: "Medium", pColor: "text-orange-600 bg-orange-100", status: "Lost", sBadge: "text-rose-600 bg-rose-100", lastFollow: "15 May 2025\n05:10 PM" },
-    { id: "Q-2025-0241", customer: "Vikas Sharma", phone: "+91 95678 12345", dest: "Kerala", days: "3N/4D", date: "12 Jun 2025", source: "Google Ads", sIcon: Globe, sColor: "text-amber-500", assignee: "Thomas K", priority: "Medium", pColor: "text-orange-600 bg-orange-100", status: "Lost", sBadge: "text-rose-600 bg-rose-100", lastFollow: "15 May 2025\n05:10 PM" },
-  ];
+  const getSourceIcon = (sourceName: any) => {
+    if (!sourceName || typeof sourceName !== 'string') return { Icon: Globe, color: "text-indigo-800" };
+    const s = sourceName.toLowerCase();
+    if (s.includes("whatsapp")) return { Icon: WhatsAppIcon, color: "text-emerald-500" };
+    if (s.includes("meta") || s.includes("instagram") || s.includes("facebook")) return { Icon: Infinity, color: "text-blue-600" };
+    if (s.includes("google")) return { Icon: Globe, color: "text-amber-500" };
+    if (s.includes("reference") || s.includes("referral")) return { Icon: Users, color: "text-slate-700" };
+    return { Icon: Globe, color: "text-indigo-800" };
+  };
+
+  const getPriorityStyle = (priority: string) => {
+    const p = (priority || "").toLowerCase();
+    if (p.includes("high") || p.includes("hot")) return "text-rose-600 bg-rose-100";
+    if (p.includes("medium")) return "text-orange-600 bg-orange-100";
+    if (p.includes("low")) return "text-emerald-600 bg-emerald-100";
+    return "text-gray-600 bg-gray-100";
+  };
+
+  const getStatusStyle = (status: string) => {
+    const s = (status || "").toLowerCase();
+    if (s.includes("new")) return "text-blue-600 bg-blue-100";
+    if (s.includes("contacted")) return "text-teal-600 bg-teal-100";
+    if (s.includes("requirement")) return "text-purple-600 bg-purple-100";
+    if (s.includes("quotation")) return "text-indigo-600 bg-indigo-100";
+    if (s.includes("follow")) return "text-amber-600 bg-amber-100";
+    if (s.includes("confirmed")) return "text-emerald-600 bg-emerald-100";
+    if (s.includes("lost") || s.includes("cancel")) return "text-rose-600 bg-rose-100";
+    return "text-gray-600 bg-gray-100";
+  };
 
   return (
-    <div className="flex flex-col flex-1 overflow-hidden h-full">
+    <div className="flex flex-col flex-1 overflow-hidden h-full relative">
       
       {/* Tabs */}
       <div className="flex items-center gap-6 px-5 border-b border-gray-100 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
@@ -45,7 +74,7 @@ export default function QueryTable() {
       </div>
 
       {/* Table Container */}
-      <div className="overflow-x-auto w-full flex-1">
+      <div className="overflow-x-auto w-full flex-1 border-t border-gray-100">
         <table className="w-full text-left text-xs min-w-[1050px]">
           <thead className="bg-gray-100/70 text-gray-600 border-b border-gray-100 font-semibold">
             <tr>
@@ -62,97 +91,146 @@ export default function QueryTable() {
               <th className="py-4 xl:py-6 px-4 font-medium text-center whitespace-nowrap">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50">
-            {dummyData.map((row, idx) => (
-              <tr key={idx} className="hover:bg-gray-50/80 transition-colors">
-                <td className="py-3 px-4"><input type="checkbox" className="rounded border-gray-300 cursor-pointer" /></td>
-                <td className="py-3 px-4 text-blue-600 font-semibold cursor-pointer whitespace-nowrap">{row.id}</td>
-                <td className="py-3 px-4 whitespace-nowrap">
-                  <p className="font-bold text-gray-800">{row.customer}</p>
-                  <p className="text-[10px] text-gray-500 font-medium mt-0.5">{row.phone}</p>
-                </td>
-                <td className="py-3 px-4 whitespace-nowrap">
-                  <p className="font-semibold text-gray-800">{row.dest}</p>
-                  <p className="text-[10px] text-gray-500 font-medium mt-0.5">{row.days}</p>
-                </td>
-                <td className="py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">{row.date}</td>
-                <td className="py-3 px-4 whitespace-nowrap">
-                  <div className="flex items-center gap-2 font-bold text-gray-700">
-                    <row.sIcon size={14} className={row.sColor} strokeWidth={2.5} />
-                    {row.source}
-                  </div>
-                </td>
-                <td className="py-3 px-4 whitespace-nowrap">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px] font-bold">
-                      {row.assignee.substring(0, 2).toUpperCase()}
+
+          {/* Skeleton Loading or Table Body */}
+          {loading ? (
+            <tbody className="divide-y divide-gray-50">
+              {[...Array(10)].map((_, i) => (
+                <tr key={i} className="animate-pulse bg-white">
+                  <td className="py-4 px-4"><div className="w-4 h-4 bg-gray-200 rounded"></div></td>
+                  <td className="py-4 px-4"><div className="w-16 h-4 bg-gray-200 rounded"></div></td>
+                  <td className="py-4 px-4">
+                    <div className="w-24 h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="w-20 h-3 bg-gray-100 rounded"></div>
+                  </td>
+                  <td className="py-4 px-4">
+                    <div className="w-20 h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="w-10 h-3 bg-gray-100 rounded"></div>
+                  </td>
+                  <td className="py-4 px-4"><div className="w-20 h-4 bg-gray-200 rounded"></div></td>
+                  <td className="py-4 px-4"><div className="flex items-center gap-2"><div className="w-4 h-4 rounded-full bg-gray-200"></div><div className="w-16 h-4 bg-gray-200 rounded"></div></div></td>
+                  <td className="py-4 px-4">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-full bg-gray-200"></div>
+                      <div>
+                        <div className="w-24 h-4 bg-gray-200 rounded mb-1.5"></div>
+                        <div className="w-12 h-3 bg-gray-100 rounded"></div>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-semibold text-gray-800 leading-tight">{row.assignee}</p>
-                      <p className="text-[9px] text-gray-500 font-medium mt-0.5">Executive</p>
+                  </td>
+                  <td className="py-4 px-4 text-center"><div className="w-16 h-6 bg-gray-200 rounded-md mx-auto"></div></td>
+                  <td className="py-4 px-4 text-center"><div className="w-16 h-6 bg-gray-200 rounded-md mx-auto"></div></td>
+                  <td className="py-4 px-4"><div className="w-20 h-4 bg-gray-200 rounded"></div></td>
+                  <td className="py-4 px-4">
+                    <div className="flex items-center justify-center gap-1.5">
+                      {[...Array(5)].map((_, j) => (
+                        <div key={j} className="w-7 h-7 bg-gray-200 rounded-md"></div>
+                      ))}
                     </div>
-                  </div>
-                </td>
-                <td className="py-3 px-4 text-center whitespace-nowrap">
-                  <span className={`px-2.5 py-1.5 rounded-md text-[10px] font-bold ${row.pColor}`}>{row.priority}</span>
-                </td>
-                <td className="py-3 px-4 text-center whitespace-nowrap">
-                  <span className={`px-2.5 py-1.5 rounded-md text-[10px] font-bold ${row.sBadge}`}>{row.status}</span>
-                </td>
-                <td className="py-3 px-4 text-[10px] text-gray-600 font-medium whitespace-pre-line leading-relaxed">{row.lastFollow}</td>
-                <td className="py-3 px-4">
-                  <div className="flex items-center justify-center gap-1.5">
-                    <div className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded-md hover:bg-gray-100 cursor-pointer transition-colors">
-                      <Eye size={13} className="text-slate-700" strokeWidth={2} />
-                    </div>
-                    <div className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded-md hover:bg-gray-100 cursor-pointer transition-colors">
-                      <UserPlus size={13} className="text-slate-700" strokeWidth={2} />
-                    </div>
-                    <div className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded-md hover:bg-gray-100 cursor-pointer transition-colors">
-                      <Phone size={13} className="text-slate-700" strokeWidth={2} />
-                    </div>
-                    <div className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded-md hover:bg-gray-100 cursor-pointer transition-colors">
-                      <WhatsAppIcon size={14} className="text-[#25D366]" />
-                    </div>
-                    <div className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded-md hover:bg-gray-100 cursor-pointer transition-colors">
-                      <FileText size={13} className="text-slate-700" strokeWidth={2} />
-                    </div>
-                  </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          ) : queries.length === 0 ? (
+            <tbody>
+              <tr>
+                <td colSpan={11} className="py-20 text-center text-gray-500 font-medium text-sm">
+                  No queries found for your search/filters.
                 </td>
               </tr>
-            ))}
-          </tbody>
+            </tbody>
+          ) : (
+            <tbody className="divide-y divide-gray-50">
+              {queries.map((row, idx) => {
+                const queryId = row.query_id || `Q-${row.id}`;
+                const customer = row.customer?.name || row.client_name || 'Unknown';
+                const phone = row.customer?.phone || row.phone_number || '-';
+                const dest = row.destination?.name || row.sector_display || '-';
+                const days = row.destination?.duration || (row.total_days ? `${row.total_days} Days` : '-');
+                const date = row.travel_date || row.from_date || '-';
+                const sourceStr = row.source?.name || row.lead_source_name || 'Website';
+                const assignee = row.assigned_to?.name || row.assign_name || 'Unassigned';
+                const assigneeInitials = row.assigned_to?.initials || assignee.substring(0, 2).toUpperCase();
+                const priority = row.priority_display || 'Medium';
+                const status = row.status_display || 'New';
+                const lastFollow = row.last_followup || '-';
+
+                const { Icon: SourceIcon, color: sColor } = getSourceIcon(sourceStr);
+                const pColor = getPriorityStyle(priority);
+                const sBadge = getStatusStyle(status);
+
+                return (
+                  <tr key={idx} className="hover:bg-gray-50/80 transition-colors">
+                    <td className="py-3 px-4"><input type="checkbox" className="rounded border-gray-300 cursor-pointer" /></td>
+                    <td className="py-3 px-4 text-blue-600 font-semibold cursor-pointer whitespace-nowrap">{queryId}</td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      <p className="font-bold text-gray-800">{customer}</p>
+                      <p className="text-[10px] text-gray-500 font-medium mt-0.5">{phone}</p>
+                    </td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      <p className="font-semibold text-gray-800">{dest}</p>
+                      <p className="text-[10px] text-gray-500 font-medium mt-0.5">{days}</p>
+                    </td>
+                    <td className="py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">{date}</td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2 font-bold text-gray-700">
+                        <SourceIcon size={14} className={sColor} />
+                        {sourceStr}
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px] font-bold">
+                          {assigneeInitials}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-800 leading-tight">{assignee}</p>
+                          <p className="text-[9px] text-gray-500 font-medium mt-0.5">Executive</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 text-center whitespace-nowrap">
+                      <span className={`px-2.5 py-1.5 rounded-md text-[10px] font-bold ${pColor}`}>{priority}</span>
+                    </td>
+                    <td className="py-3 px-4 text-center whitespace-nowrap">
+                      <span className={`px-2.5 py-1.5 rounded-md text-[10px] font-bold ${sBadge}`}>{status}</span>
+                    </td>
+                    <td className="py-3 px-4 text-[10px] text-gray-600 font-medium whitespace-pre-line leading-relaxed">{lastFollow}</td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <div className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded-md hover:bg-gray-100 cursor-pointer transition-colors">
+                          <Eye size={13} className="text-slate-700" strokeWidth={2} />
+                        </div>
+                        <div className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded-md hover:bg-gray-100 cursor-pointer transition-colors">
+                          <UserPlus size={13} className="text-slate-700" strokeWidth={2} />
+                        </div>
+                        <div className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded-md hover:bg-gray-100 cursor-pointer transition-colors">
+                          <Phone size={13} className="text-slate-700" strokeWidth={2} />
+                        </div>
+                        <div className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded-md hover:bg-gray-100 cursor-pointer transition-colors">
+                          <WhatsAppIcon size={14} className="text-[#25D366]" />
+                        </div>
+                        <div className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded-md hover:bg-gray-100 cursor-pointer transition-colors">
+                          <FileText size={13} className="text-slate-700" strokeWidth={2} />
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          )}
         </table>
       </div>
       
-      {/* Centered Pagination Layout with Mobile Reordering */}
-      <div className="border-t border-gray-100 p-4 py-6 sm:py-8 flex flex-row flex-wrap sm:flex-nowrap items-center justify-between gap-y-4 sm:gap-4 text-xs font-medium text-gray-500 mt-auto bg-white">
-        
-        {/* Left: Info - Left on both Mobile & Desktop */}
-        <div className="w-1/2 sm:w-1/3 order-1 text-left">
-          <p className="whitespace-nowrap truncate sm:overflow-visible">Showing 1 to 10 of 248</p>
-        </div>
+      {/* Reusable Pagination Component */}
+      <Pagination 
+        page={page} 
+        limit={limit} 
+        totalCount={totalCount} 
+        onPageChange={onPageChange} 
+      />
 
-        {/* Right: Dropdown - Right on Mobile (order-2), Right on Desktop (order-3) */}
-        <div className="w-1/2 sm:w-1/3 order-2 sm:order-3 flex justify-end">
-          <div className="flex items-center gap-2 border border-gray-200 rounded-md px-2 sm:px-3 py-1.5 hover:bg-gray-50 cursor-pointer transition-colors">
-            <span className="text-gray-700 font-semibold whitespace-nowrap">10 / page</span>
-            <ChevronDown size={14} className="text-gray-400 shrink-0" />
-          </div>
-        </div>
-
-        {/* Center: Pagination Buttons - Center on Mobile (order-3), Center on Desktop (order-2) */}
-        <div className="w-full sm:w-1/3 order-3 sm:order-2 flex items-center justify-center gap-1 sm:gap-1.5 pt-1 sm:pt-0">
-          <button className="w-7 h-7 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">&lt;</button>
-          <button className="w-7 h-7 rounded-md bg-blue-600 text-white font-bold flex items-center justify-center shadow-sm cursor-pointer">1</button>
-          <button className="w-7 h-7 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">2</button>
-          <button className="hidden sm:flex w-7 h-7 rounded-md border border-gray-200 items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">3</button>
-          <span className="px-1 text-gray-400">...</span>
-          <button className="w-7 h-7 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">31</button>
-          <button className="w-7 h-7 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">&gt;</button>
-        </div>
-
-      </div>
     </div>
   );
 }

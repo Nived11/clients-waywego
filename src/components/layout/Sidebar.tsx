@@ -18,7 +18,6 @@ interface SidebarProps {
 export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const pathname = usePathname();
   
-  // Tooltip kanikkan vendiyulla state (perum, exact position-um)
   const [hoveredTooltip, setHoveredTooltip] = useState<{name: string, top: number} | null>(null);
 
   const navItems = [
@@ -38,7 +37,6 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     { name: "Reports", icon: BarChart2, href: "/reports" },
     { name: "Activities", icon: Activity, href: "/activities" },
     { name: "Package Templates", icon: Package, href: "/templates" },
-    // Itinerary Builder-ന് Map കൊടുത്തു (രണ്ടും ഒന്നാവാതിരിക്കാൻ)
     { name: "Itinerary Builder", icon: Map, href: "/itinerary" }, 
     { name: "Team & Permissions", icon: Shield, href: "/team" },
   ];
@@ -131,7 +129,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                 <Link
                   href={item.href}
                   onClick={handleLinkClick}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors whitespace-nowrap ${
+                  className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-colors whitespace-nowrap ${
                     isActive 
                       ? "bg-blue-600 text-white font-medium shadow-md shadow-blue-900/20" 
                       : "hover:bg-gray-800 hover:text-white"
