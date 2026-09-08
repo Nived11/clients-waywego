@@ -39,7 +39,6 @@ export default function QueryFilters({ onOpenAddQuery, filterOptions, onSearch, 
   }, [searchTerm, currentSearch, onSearch]);
 
   const handleResetClick = () => {
-    // ആനിമേഷൻ തീരുന്നതുവരെ വീണ്ടും റൺ ആവാതിരിക്കാൻ ഒരു ചെക്ക്
     if (isResetting) return; 
 
     setIsResetting(true);
@@ -57,8 +56,19 @@ export default function QueryFilters({ onOpenAddQuery, filterOptions, onSearch, 
   const priorityOptions = filterOptions?.priorities?.map(p => ({ label: p.label, value: p.value })) || [];
   const statusOptions = filterOptions?.statuses?.map(s => ({ label: s.label, value: s.value })) || [];
 
+  // 🔥 UPDATE: key 'date_range' ആയി മാറ്റി
   const filters = [
-    { key: "date", label: "Date Range", options: [{label: "All Dates", value: ""}, {label: "14 May - 20 May", value: "custom"}, {label: "Last 7 Days", value: "last_7"}, {label: "This Month", value: "this_month"}] },
+    { 
+      key: "date_range", 
+      label: "Date Range", 
+      options: [
+        {label: "All Dates", value: ""}, 
+        {label: "Today", value: "today"}, 
+        {label: "Yesterday", value: "yesterday"}, 
+        {label: "Last 7 Days", value: "last_7_days"}, 
+        {label: "This Month", value: "this_month"},
+      ] 
+    },
     { key: "source", label: "Source", options: [{label: "All Sources", value: ""}, ...sourceOptions] },
     { key: "destination", label: "Destination", options: [{label: "All Destinations", value: ""}, ...destinationOptions] },
     { key: "assigned_to", label: "Assigned To", options: [{label: "All Executives", value: ""}, ...executiveOptions] },
@@ -102,11 +112,11 @@ export default function QueryFilters({ onOpenAddQuery, filterOptions, onSearch, 
           <button 
             onClick={handleResetClick} 
             disabled={isResetting}
-            className="flex items-center justify-center gap-1.5 px-3 py-2 bg-gray-100 text-gray-600 border border-gray-200 rounded-lg text-xs font-bold hover:bg-gray-200 hover:text-gray-800 transition-colors shadow-sm cursor-pointer shrink-0 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="flex items-center justify-center gap-1.5 px-3 py-2 bg-red-500 hover:bg-red-600 text-white border border-white rounded-lg text-xs font-bold transition-colors shadow-sm cursor-pointer shrink-0 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <RotateCcw 
               size={14} 
-              className={isResetting ? "animate-spin [animation-direction:reverse] text-blue-600" : ""} 
+              className={isResetting ? "animate-spin [animation-direction:reverse] text-white" : ""} 
             /> 
             <span>Reset</span>
           </button>

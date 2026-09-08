@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-// MapPin ഐക്കൺ കൂടി ചേർത്തു
 import { Search, Bell, ChevronDown, LogOut, User, Settings, FileText, UserPlus, MapPin } from "lucide-react";
-import Link from "next/link"; // Link ഇംപോർട്ട് ചെയ്തു
+import Link from "next/link"; 
 import { useLogout } from "@/features/auth/hooks/useLogout"; 
 import { ConfirmModal } from "@/components/ui/ConfirmModal"; 
 

@@ -25,3 +25,46 @@
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* ==========================================
+   Phone Input Light Theme Styles
+   ========================================== */
+.custom-phone-input .PhoneInput {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.custom-phone-input .PhoneInputInput {
+  flex: 1;
+  background: transparent !important;
+  border: none !important;
+  color: #1f2937 !important; /* Tailwind gray-800 */
+  outline: none !important;
+  font-size: 0.75rem !important; /* text-xs */
+  font-weight: 500 !important;
+}
+.custom-phone-input .PhoneInputCountry {
+  margin-right: 8px;
+}
+.custom-phone-input .PhoneInputCountrySelect:focus {
+  outline: none !important;
+}
+
+/* Dropdown popover container styling (If using custom select) */
+.PhoneInputCountrySelectPanel {
+  background-color: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  color: #1f2937 !important;
+  border-radius: 8px !important;
+  padding: 8px !important;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+}
+.PhoneInputCountrySelectPanel .PhoneInputCountrySelectOption {
+  font-size: 12px !important;
+  padding: 6px 8px !important;
+  border-radius: 6px !important;
+}
+.PhoneInputCountrySelectPanel .PhoneInputCountrySelectOption:hover,
+.PhoneInputCountrySelectPanel .PhoneInputCountrySelectOption--focused {
+  background-color: #f3f4f6 !important; /* Tailwind gray-100 */
+}

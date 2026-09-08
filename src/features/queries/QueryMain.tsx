@@ -9,26 +9,44 @@ import QuerySidebar from "./components/QuerySidebar";
 import AddQueryForm from "./components/AddQueryForm";
 
 import { useQueryStats } from "./hooks/useQueryStats"; 
-import { useQueries } from "./hooks/useQueries"; // പുതിയ ഹുക്ക് ഇംപോർട്ട് ചെയ്യുന്നു
+import { useQueries } from "./hooks/useQueries"; 
 import QuerySkeletonLoading from "./components/QuerySkeletonLoading";
-
 
 export const QueryMain = ({ tenantName }: { tenantName: string }) => {
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isAddQueryOpen, setIsAddQueryOpen] = useState(false);
+  
+  const [editQueryData, setEditQueryData] = useState<any>(null);
 
-  // Stats API യിൽ നിന്നും ഡാറ്റ എടുക്കുന്നു
-  const { data: statsData, loading: statsLoading, error: statsError } = useQueryStats();
+  // 🔥 1. Stats API - ഇതിൽ നിന്നും refetchStats കൂടി എടുത്തു
+  const { data: statsData, loading: statsLoading, error: statsError, refetch: refetchStats } = useQueryStats();
 
-  // Table API യിൽ നിന്നും ഡാറ്റ എടുക്കുന്നു
-const { 
+  // 🔥 2. Table API - ഇതിൽ നിന്നും refetch ന്റെ പേര് മാറ്റി refetchTable എന്നാക്കി
+  const { 
     queries, loading: queriesLoading, 
     page, limit, totalCount, search, filters,
-    handlePageChange, handleSearch, handleFilter, resetFilters 
+    handlePageChange, handleSearch, handleFilter, resetFilters,
+    refetch: refetchTable 
   } = useQueries();
 
-if (statsLoading) {
+  const handleEditClick = (query: any) => {
+    setEditQueryData(query);       
+    setIsAddQueryOpen(true);     
+  };
+
+  const handleCloseModal = () => {
+    setIsAddQueryOpen(false);
+    setEditQueryData(null); 
+  };
+
+  // 🔥 3. ഫോം സക്സസ് ആകുമ്പോൾ വിളിക്കാനുള്ള പുതിയ ഫംഗ്ഷൻ
+  const handleFormSuccess = () => {
+    refetchTable(); // ടേബിളിലെ പുതിയ ഡാറ്റ വരാൻ
+    refetchStats(); // മുകളിലെ കൗണ്ടുകളും സ്റ്റാറ്റസും അപ്ഡേറ്റ് ആവാൻ
+  };
+
+  if (statsLoading) {
     return <QuerySkeletonLoading />;
   }
 
@@ -64,7 +82,7 @@ if (statsLoading) {
                 <Calendar className="text-slate-600 w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2} />
               </button>
 
-              {/* Tailwind Mockup Calendar Popup (നിങ്ങളുടെ പഴയ കോഡ്) */}
+              {/* Tailwind Mockup Calendar Popup */}
               {isCalendarOpen && (
                 <div 
                   className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-72 bg-white border border-gray-100 rounded-2xl shadow-xl z-20 p-4 animate-in fade-in slide-in-from-top-2 duration-200 cursor-default"
@@ -124,7 +142,6 @@ if (statsLoading) {
                 <ChevronDown className="text-slate-600 w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2} />
               </button>
 
-              {/* Dropdown Menu */}
               {isExportOpen && (
                 <div className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-44 bg-white border border-gray-100 rounded-xl shadow-lg z-20 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
                   <button className="w-full text-left px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2.5 transition-colors cursor-pointer">
@@ -150,25 +167,26 @@ if (statsLoading) {
         {/* 3. Bottom Row: Filters, Table & Sidebar */}
         <div className="flex flex-col xl:flex-row gap-6">
           
-          <div className="flex-1 flex flex-col min-w-0 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="flex-1 flex flex-1 flex-col min-w-0 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
            <QueryFilters 
               filterOptions={statsData?.filter_options} 
-              onOpenAddQuery={() => setIsAddQueryOpen(true)}
+              onOpenAddQuery={() => { setEditQueryData(null); setIsAddQueryOpen(true); }} 
               onSearch={handleSearch} 
               onFilterChange={handleFilter} 
-              currentSearch={search} // state pass ചെയ്യുന്നു
-              currentFilters={filters} // state pass ചെയ്യുന്നു
-              onReset={resetFilters} // reset function pass ചെയ്യുന്നു
-            />
-            <QueryTable 
-  queries={queries} 
-  loading={queriesLoading}
-  page={page}
-  limit={limit}
-  totalCount={totalCount}
-  onPageChange={handlePageChange}
-  stageCounts={statsData?.stage_counts} 
-/>
+              currentSearch={search} 
+              currentFilters={filters} 
+              onReset={resetFilters} 
+           />
+           <QueryTable 
+              queries={queries} 
+              loading={queriesLoading}
+              page={page}
+              limit={limit}
+              totalCount={totalCount}
+              onPageChange={handlePageChange}
+              stageCounts={statsData?.stage_counts} 
+              onEditClick={handleEditClick} 
+           />
           </div>
 
           <div className="w-full xl:w-[320px] 2xl:w-[340px] shrink-0 flex flex-col gap-6">
@@ -201,9 +219,12 @@ if (statsLoading) {
         
       </div>
 
+      {/* Add / Edit Query Form Modal */}
       <AddQueryForm 
         isOpen={isAddQueryOpen} 
-        onClose={() => setIsAddQueryOpen(false)} 
+        onClose={handleCloseModal} 
+        onSuccess={handleFormSuccess}  // 🔥 ഇവിടെ നമ്മൾ ഉണ്ടാക്കിയ പുതിയ ഫംഗ്ഷൻ പാസ്സ് ചെയ്തു
+        editData={editQueryData}   
       />
     </>
   );

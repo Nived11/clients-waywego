@@ -21,6 +21,11 @@ export const useQueries = () => {
         Object.entries(filters).filter(([_, v]) => v !== '')
       );
 
+      // 🔥 FIX: പഴയ കീകളായ 'date', 'date_preset', 'date_type' എന്നിവ സ്റ്റേറ്റിലുണ്ടെങ്കിൽ അത് നീക്കം ചെയ്യുന്നു
+      if (activeFilters.date) delete activeFilters.date;
+      if (activeFilters.date_preset) delete activeFilters.date_preset;
+      if (activeFilters.date_type) delete activeFilters.date_type;
+
       const params = {
         page,
         page_size: limit,
@@ -64,8 +69,8 @@ export const useQueries = () => {
 
   return { 
     queries, loading, error, 
-    page, limit, totalCount, search, filters, // search, filters return ചെയ്യുന്നു
-    handlePageChange, handleSearch, handleFilter, resetFilters, // resetFilters ചേർത്തു
+    page, limit, totalCount, search, filters,
+    handlePageChange, handleSearch, handleFilter, resetFilters, 
     refetch: fetchQueries 
   };
 };
