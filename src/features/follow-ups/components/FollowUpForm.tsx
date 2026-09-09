@@ -395,7 +395,7 @@ export default function FollowUpForm() {
 
       </div>
 
-      {/* 🔥 Sticky Bottom Actions (Fully Responsive) */}
+      {/*   Sticky Bottom Actions (Fully Responsive) */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 sm:p-4 z-40 flex items-center justify-between gap-2 sm:gap-3 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)] lg:pl-[260px]">
         
         <Link href="/follow-ups" className="px-4 sm:px-6 py-2.5 rounded-lg border border-gray-200 text-gray-600 text-[11px] sm:text-xs font-bold hover:bg-gray-50 transition-colors cursor-pointer shrink-0">
