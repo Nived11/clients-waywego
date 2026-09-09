@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-import SettingsInnerSidebar from "@/components/layout/SettingsInnerSidebar"; // പാത്ത് കറക്റ്റ് ആണെന്ന് ഉറപ്പാക്കുക
+import SettingsInnerSidebar from "@/components/layout/SettingsInnerSidebar"; 
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
