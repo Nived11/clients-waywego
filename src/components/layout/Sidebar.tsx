@@ -7,7 +7,8 @@ import { usePathname } from "next/navigation";
 import { 
   Home, Users, MessageSquare, CalendarClock, Map, Briefcase, 
   Building2, Ship, Car, FileText, CalendarCheck, CreditCard, 
-  BarChart2, Activity, Package, MapPin, Shield, ChevronDown, Zap, X
+  BarChart2, Activity, Package, MapPin, Shield, ChevronDown, 
+  Zap, X, History, Settings 
 } from "lucide-react";
 
 interface SidebarProps {
@@ -25,7 +26,6 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     { name: "Leads", icon: Users, href: "/leads" },
     { name: "Queries", icon: MessageSquare, href: "/queries" },
     { name: "Today's Follow-ups", icon: CalendarClock, href: "/follow-ups" },
-    // Destinations-ന് MapPin (Location Icon) കൊടുത്തു
     { name: "Destinations", icon: MapPin, href: "/destinations" }, 
     { name: "Suppliers", icon: Briefcase, href: "/suppliers" },
     { name: "Hotels", icon: Building2, href: "/hotels" },
@@ -38,7 +38,9 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     { name: "Activities", icon: Activity, href: "/activities" },
     { name: "Package Templates", icon: Package, href: "/templates" },
     { name: "Itinerary Builder", icon: Map, href: "/itinerary" }, 
-    { name: "Team & Permissions", icon: Shield, href: "/team" },
+    { name: "Team & Permissions", icon: Shield, href: "/teams-permissions" },
+    { name: "Audit Logs", icon: History, href: "/audit-logs" },
+    { name: "Settings", icon: Settings, href: "/settings" },
   ];
 
   // Mobile-l (width < 1024px) oru link click cheythal sidebar close cheyyan ulla function
@@ -53,7 +55,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
       {/* Mobile Overlay Background */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-20 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-[50] lg:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -61,7 +63,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
       {/* Sidebar Container */}
       <aside 
         className={`
-          fixed lg:static inset-y-0 left-0 z-40
+          fixed lg:relative inset-y-0 left-0 z-[60]
           bg-[#111827] text-gray-300 flex flex-col h-screen text-sm transition-all duration-300 ease-in-out
           ${isOpen ? "w-[240px] translate-x-0" : "w-[70px] -translate-x-full lg:translate-x-0"}
         `}
