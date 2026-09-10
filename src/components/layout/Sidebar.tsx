@@ -8,7 +8,8 @@ import {
   Home, Users, MessageSquare, CalendarClock, Map, Briefcase, 
   Building2, Ship, Car, FileText, CalendarCheck, CreditCard, 
   BarChart2, Activity, Package, MapPin, Shield, ChevronDown, 
-  Zap, X, History, Settings 
+  Zap, X, History, Settings, 
+  CircleQuestionMark
 } from "lucide-react";
 
 interface SidebarProps {
@@ -41,6 +42,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     { name: "Team & Permissions", icon: Shield, href: "/teams-permissions" },
     { name: "Audit Logs", icon: History, href: "/audit-logs" },
     { name: "Settings", icon: Settings, href: "/settings" },
+    { name: "Need Help", icon: CircleQuestionMark, href: "/help" },
   ];
 
   // Mobile-l (width < 1024px) oru link click cheythal sidebar close cheyyan ulla function
