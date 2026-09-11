@@ -5,8 +5,34 @@ import AuditStats from "./components/AuditStats";
 import AuditFilters from "./components/AuditFilters";
 import AuditTable from "./components/AuditTable";
 import AuditSidebar from "./components/AuditSidebar";
+import AuditSkeletonLoading from "./components/AuditSkeletonLoading"; // 🔥 സ്കെലിറ്റൺ ഇമ്പോർട്ട് ചെയ്തു
+
+import { useAuditStats } from "./hooks/useAuditStats";
+import { useAuditLogs } from "./hooks/useAuditLogs";
 
 export const AuditLogsMain = () => {
+  // 🔥 error കൂടി ഹുക്കിൽ നിന്നും എടുക്കുന്നു
+  const { data: statsData, loading: statsLoading, error: statsError } = useAuditStats();
+  const { 
+    logs, loading: logsLoading, 
+    page, limit, totalCount, search, filters,
+    handlePageChange, handleSearch, handleFilter, resetFilters 
+  } = useAuditLogs();
+
+  // 🔥 ഡാറ്റ ലോഡ് ആവുന്ന സമയത്ത് സ്കെലിറ്റൺ കാണിക്കുന്നു
+  if (statsLoading) {
+    return <AuditSkeletonLoading />;
+  }
+
+  // 🔥 API ഫെയിൽ ആയാൽ എറർ മെസ്സേജ് കാണിക്കുന്നു
+  if (statsError) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] w-full text-rose-500 font-medium">
+        <p>Error: {statsError}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6 w-full max-w-[1600px] mx-auto pb-6">
       
@@ -20,9 +46,9 @@ export const AuditLogsMain = () => {
         </div>
       </div>
 
-      {/* 2. Stats Row (Moved to top, full width like other pages) */}
+      {/* 2. Stats Row */}
       <div className="w-full">
-        <AuditStats />
+        <AuditStats stats={statsData?.kpis} loading={statsLoading} />
       </div>
 
       {/* 3. Main Layout (2 Columns) */}
@@ -31,21 +57,38 @@ export const AuditLogsMain = () => {
         {/* ================= LEFT COLUMN ================= */}
         <div className="flex-1 min-w-0 flex flex-col gap-5">
           
-          {/* Filters (Above the table) */}
           <div className="bg-white p-4 md:p-5 rounded-2xl border border-gray-100 shadow-sm">
-            <AuditFilters />
+            <AuditFilters 
+              filterOptions={statsData?.filter_options}
+              onSearch={handleSearch}
+              onFilterChange={handleFilter}
+              currentSearch={search}
+              currentFilters={filters}
+              onReset={resetFilters}
+            />
           </div>
 
-          {/* Table */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
-            <AuditTable />
+            <AuditTable 
+              logs={logs} 
+              loading={logsLoading} // 🔥 ടേബിളിനകത്തെ ലോഡിങ് ടേബിൾ തന്നെ മാനേജ് ചെയ്യും
+              page={page}
+              limit={limit}
+              totalCount={totalCount}
+              onPageChange={handlePageChange}
+            />
           </div>
 
         </div>
 
         {/* ================= RIGHT COLUMN (Sidebar) ================= */}
         <div className="w-full xl:w-[320px] 2xl:w-[300px] shrink-0 flex flex-col gap-6">
-          <AuditSidebar />
+          <AuditSidebar 
+            overview={statsData?.activity_overview?.breakdown} 
+            totalLogs={statsData?.activity_overview?.total}
+            topUsers={statsData?.top_active_users} 
+            topModules={statsData?.top_modules} 
+          />
         </div>
 
       </div>
