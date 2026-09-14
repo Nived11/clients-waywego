@@ -1,11 +1,12 @@
-// src/app/[tenant]/layout.tsx
 import { notFound } from 'next/navigation'; 
 
 // Backend API call cheyyunna function
 const checkTenantExists = async (tenantName: string) => {
   try {
+    const cleanTenant = tenantName.split(':')[0];
+
     const baseDomain = process.env.NEXT_PUBLIC_API_DOMAIN || 'waywego.in';
-    const apiUrl = `https://${tenantName}.${baseDomain}/api/public/check-subdomain/?subdomain=${tenantName}`;
+    const apiUrl = `https://${cleanTenant}.${baseDomain}/api/public/check-subdomain/?subdomain=${cleanTenant}`;
     
     // API Call
     const response = await fetch(apiUrl, { cache: 'no-store' });
@@ -37,6 +38,6 @@ export default async function TenantLayout({
     notFound(); 
   }
 
-  // 3. Valid tenant aanenkil mathram ullilulla pages (Login, Dashboard) kanikkum
+  // 3. Valid tenant aanenkil mathram ullilulla pages kanikkum
   return <>{children}</>;
 }
