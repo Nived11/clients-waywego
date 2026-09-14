@@ -6,8 +6,22 @@ import DestinationFilters from "./components/DestinationFilters";
 import DestinationTable from "./components/DestinationTable";
 import DestinationSidebar from "./components/DestinationSidebar";
 import DestinationActivity from "./components/DestinationActivity";
+import DestinationSkeletonLoading from "./components/DestinationSkeletonLoading"; 
+
+import { useDestinations } from "./hooks/useDestinations";
+import { useDestinationStats } from "./hooks/useDestinationStats"; 
 
 export const DestinationMain = ({ tenantName }: { tenantName: string }) => {
+  
+  const { 
+    destinations, loading: tableLoading, error: tableError,
+    page, limit, totalCount, search, filters,
+    handlePageChange, handleSearch, handleFilter, resetFilters,
+    handleDeleteDestination 
+  } = useDestinations();
+
+  const { statsData, loading: statsLoading, error: statsError } = useDestinationStats();
+
   return (
     <div className="flex flex-col gap-6 w-full max-w-[1600px] mx-auto pb-6">
       
@@ -21,51 +35,68 @@ export const DestinationMain = ({ tenantName }: { tenantName: string }) => {
         </div>
       </div>
 
-      {/* 2. Stats Row - Moved Outside for FULL WIDTH */}
-      <div className="w-full">
-        <DestinationStats />
-      </div>
-
-      {/* 3. Main Content Layout (2 Columns starts from here) */}
-      <div className="flex flex-col xl:flex-row gap-6">
-        
-        {/* Left Column: Table & Activity */}
-        <div className="flex-1 min-w-0 flex flex-col gap-6">
-          
-          {/* Table & Filters Card */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
-            <DestinationFilters />
-            <DestinationTable />
+      {(statsError || tableError) ? (
+        <div className="flex flex-col items-center justify-center min-h-[400px] w-full text-rose-500 font-medium">
+          <p>Error: {statsError || tableError}</p>
+        </div>
+      ) : statsLoading ? (
+        <DestinationSkeletonLoading />
+      ) : (
+        <>
+          {/* 2. Stats Row */}
+          <div className="w-full">
+            <DestinationStats cards={statsData?.cards} loading={statsLoading} />
           </div>
 
-          {/* Recent Activity */}
-          <DestinationActivity />
+          {/* 3. Main Content Layout */}
+          <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] 2xl:grid-cols-[1fr_260px] gap-6">
+            
+            {/* 🟢 Left Top: Table & Filters (Row 1, Col 1) */}
+            <div className="order-1 xl:col-start-1 xl:row-start-1 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col h-full">
+              <DestinationFilters 
+                filterOptions={statsData?.filter_options}
+                onSearch={handleSearch}
+                onFilterChange={handleFilter}
+                currentSearch={search}
+                currentFilters={filters}
+                onReset={resetFilters}
+              />
+              <DestinationTable 
+                destinations={destinations}
+                loading={tableLoading}
+                page={page}
+                limit={limit}
+                totalCount={totalCount}
+                onPageChange={handlePageChange}
+                onDelete={handleDeleteDestination} 
+              />
+            </div>
 
-        </div>
+            {/* 🟢 Right Top: Sidebar (Row 1, Col 2) */}
+            <div className="order-3 xl:col-start-2 xl:row-start-1 flex flex-col gap-6 h-full">
+              <DestinationSidebar 
+                breakdown={statsData?.regions_breakdown} 
+                total={statsData?.total_destinations}
+                popular={statsData?.popular_destinations}
+              />
+            </div>
 
-        {/* Right Column: Sidebar (Starts right next to the Table) */}
-        <div className="w-full xl:w-[300px] 2xl:w-[250px] shrink-0 flex flex-col gap-6">
-          <DestinationSidebar />
-        </div>
+            {/* 🟢 Bottom Full Width: Activity (Row 2) */}
+            <div className="order-2 xl:col-span-2 xl:row-start-2 w-full">
+              <DestinationActivity activities={statsData?.recent_activities} />
+            </div>
 
-      </div>
-
-      {/* 4. Footer */}
-      <div className="pt-6 mt-4 border-t border-gray-200">
-        <div className="hidden sm:flex justify-between items-center text-xs text-gray-500 font-medium">
-          <p>Way We Go CRM <span className="mx-2">•</span> Powered by <span className="text-blue-600 font-bold tracking-wider">KAELIXO</span></p>
-          <p className="flex items-center gap-1 cursor-pointer hover:text-gray-700 transition">Last updated: 20 May 2025, 10:30 AM <span className="text-base leading-none">⟳</span></p>
-        </div>
-        <div className="flex flex-col sm:hidden text-[11px] text-gray-500 font-medium gap-3">
-          <div className="flex justify-between items-center w-full">
-            <p>Way We Go CRM</p>
-            <p className="flex items-center gap-1 cursor-pointer hover:text-gray-700 transition">Last updated: 20 May <span className="text-base leading-none">⟳</span></p>
           </div>
-          <div className="text-center w-full">
-            <p>Powered by <span className="text-blue-600 font-bold tracking-wider">KAELIXO</span></p>
+
+          {/* 4. Footer */}
+          <div className="pt-6 mt-4 border-t border-gray-200">
+            <div className="hidden sm:flex justify-between items-center text-xs text-gray-500 font-medium">
+              <p>Way We Go CRM <span className="mx-2">•</span> Powered by <span className="text-blue-600 font-bold tracking-wider">KAELIXO</span></p>
+              <p className="flex items-center gap-1 cursor-pointer hover:text-gray-700 transition">Last updated: Just now <span className="text-base leading-none">⟳</span></p>
+            </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
       
     </div>
   );

@@ -1,49 +1,50 @@
-import { Plus, Edit2, Trash2 } from "lucide-react";
+import { Plus, Edit2, Trash2, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
-export default function DestinationActivity() {
+export default function DestinationActivity({ activities = [] }: { activities?: any[] }) {
+  
+  // Icon and Color Mapper based on API response
+  const getIconConfig = (actionType: string) => {
+    if (actionType === 'create') return { Icon: Plus, bg: 'bg-emerald-50', color: 'text-emerald-500' };
+    if (actionType === 'update') return { Icon: Edit2, bg: 'bg-blue-50', color: 'text-blue-500' };
+    if (actionType === 'delete') return { Icon: Trash2, bg: 'bg-rose-50', color: 'text-rose-500' };
+    return { Icon: Plus, bg: 'bg-gray-50', color: 'text-gray-500' };
+  };
+
   return (
     <div className="bg-white p-5 md:p-6 rounded-2xl border border-gray-100 shadow-sm">
+      
+      {/* 🔥 Header with View All Button */}
       <div className="flex items-center justify-between mb-5">
         <h3 className="font-bold text-gray-800 text-sm">Recent Activity</h3>
-        <button className="text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors">View All Activity →</button>
+        <Link href="#" className="text-[11px] font-bold text-blue-600 hover:underline flex items-center gap-1">
+          View All Activity <ArrowRight size={12} strokeWidth={2.5} />
+        </Link>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Added */}
-        <div className="flex gap-3">
-          <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
-            <Plus size={16} className="text-emerald-500" strokeWidth={3} />
-          </div>
-          <div>
-            <p className="text-xs font-bold text-gray-800">New destination added</p>
-            <p className="text-[11px] text-gray-500 font-medium mt-1">Singapore has been added successfully.</p>
-            <p className="text-[10px] text-gray-400 mt-1">2 hours ago by travelhope admin</p>
-          </div>
-        </div>
+      {/* 🔥 Grid updated to show 4 columns (md:grid-cols-2, xl:grid-cols-4) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        {/* 🔥 .slice(0, 4) ആക്കി മാറ്റി (4 ഐറ്റങ്ങൾ കാണിക്കാൻ) */}
+        {activities.slice(0, 4).map((activity, idx) => {
+          const { Icon, bg, color } = getIconConfig(activity.action_type);
+          
+          return (
+            <div key={idx} className="flex gap-3">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${bg}`}>
+                <Icon size={14} className={color} strokeWidth={3} />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-gray-800">{activity.title}</p>
+                <p className="text-[11px] text-gray-500 font-medium mt-1 line-clamp-1" title={activity.message}>{activity.message}</p>
+                <p className="text-[10px] text-gray-400 mt-1">{activity.footer}</p>
+              </div>
+            </div>
+          );
+        })}
 
-        {/* Updated */}
-        <div className="flex gap-3">
-          <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
-            <Edit2 size={14} className="text-blue-500" strokeWidth={3} />
-          </div>
-          <div>
-            <p className="text-xs font-bold text-gray-800">Destination updated</p>
-            <p className="text-[11px] text-gray-500 font-medium mt-1">Goa destination information updated.</p>
-            <p className="text-[10px] text-gray-400 mt-1">Yesterday at 11:30 AM by Akhil</p>
-          </div>
-        </div>
-
-        {/* Deactivated */}
-        <div className="flex gap-3">
-          <div className="w-8 h-8 rounded-full bg-rose-50 flex items-center justify-center shrink-0">
-            <Trash2 size={14} className="text-rose-500" strokeWidth={3} />
-          </div>
-          <div>
-            <p className="text-xs font-bold text-gray-800">Destination deactivated</p>
-            <p className="text-[11px] text-gray-500 font-medium mt-1">Andaman & Nicobar has been deactivated.</p>
-            <p className="text-[10px] text-gray-400 mt-1">20 May 2025 by Akhil</p>
-          </div>
-        </div>
+        {activities.length === 0 && (
+          <p className="text-xs text-gray-400 font-medium italic col-span-full">No recent activities found.</p>
+        )}
       </div>
     </div>
   );
