@@ -5,8 +5,24 @@ import VehicleStats from "./components/VehicleStats";
 import VehicleFilters from "./components/VehicleFilters";
 import VehicleTable from "./components/VehicleTable";
 import VehicleSidebar from "./components/VehicleSidebar";
+import VehicleActivity from "./components/VehicleActivity"; // 🔥 പുതിയ ആക്റ്റിവിറ്റി കമ്പോണന്റ് ഇമ്പോർട്ട് ചെയ്തു
+
+import { useVehicles } from "./hooks/useVehicles";
+import { useVehicleStats } from "./hooks/useVehicleStats"; 
+import { useVehicleFilterOptions } from "./hooks/useVehicleFilterOptions"; 
 
 export const VehicleMain = ({ tenantName }: { tenantName: string }) => {
+  
+  const { 
+    vehicles, loading: tableLoading, error: tableError,
+    page, limit, totalCount, search, filters,
+    handlePageChange, handleSearch, handleFilter, resetFilters,
+    handleDeleteVehicle 
+  } = useVehicles();
+
+  const { statsData, loading: statsLoading } = useVehicleStats();
+  const { filterOptions } = useVehicleFilterOptions(); 
+
   return (
     <div className="flex flex-col gap-6 w-full max-w-[1600px] mx-auto pb-6">
       
@@ -20,33 +36,60 @@ export const VehicleMain = ({ tenantName }: { tenantName: string }) => {
         </div>
       </div>
 
-      {/* 2. Main Content Layout (2 Columns) */}
-      <div className="flex flex-col xl:flex-row gap-6">
-        
-        {/* ================= LEFT COLUMN ================= */}
-        <div className="flex-1 min-w-0 flex flex-col gap-6">
-          
-          {/* Stats Row - Now inside Left Column */}
+      {tableError ? (
+        <div className="flex flex-col items-center justify-center min-h-[400px] w-full text-rose-500 font-medium">
+          <p>Error: {tableError}</p>
+        </div>
+      ) : (
+        <>
+          {/* 2. Stats Row (Full Width) */}
           <div className="w-full">
-            <VehicleStats />
+            <VehicleStats cards={statsData?.cards} loading={statsLoading} />
           </div>
 
-          {/* Filters & Table Card */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
-            <VehicleFilters />
-            <VehicleTable />
+          {/* 3. Main Content Layout (Table & Sidebar on Top, Activity at Bottom Full Width) */}
+          <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] 2xl:grid-cols-[1fr_260px] gap-6">
+            
+            {/* 🟢 Left Top: Table & Filters */}
+            <div className="order-1 xl:col-start-1 xl:row-start-1 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col h-full">
+              <VehicleFilters 
+                filterOptions={filterOptions} 
+                onSearch={handleSearch}
+                onFilterChange={handleFilter}
+                currentSearch={search}
+                currentFilters={filters}
+                onReset={resetFilters}
+              />
+              <VehicleTable 
+                vehicles={vehicles}
+                loading={tableLoading}
+                page={page}
+                limit={limit}
+                totalCount={totalCount}
+                onPageChange={handlePageChange}
+                onDelete={handleDeleteVehicle}
+              />
+            </div>
+
+            {/* 🟢 Right Top: Sidebar (Status & Quick Actions) */}
+            <div className="order-3 xl:col-start-2 xl:row-start-1 flex flex-col gap-6 h-full">
+              <VehicleSidebar 
+                statusBreakdown={statsData?.status_breakdown}
+                topTypes={statsData?.top_vehicle_types}
+                totalVehicles={statsData?.total_vehicles}
+              />
+            </div>
+
+            {/* 🟢 Bottom Full Width: Activity (Row 2) */}
+            <div className="order-2 xl:col-span-2 xl:row-start-2 w-full">
+              <VehicleActivity activities={statsData?.recent_activities} />
+            </div>
+
           </div>
+        </>
+      )}
 
-        </div>
-
-        {/* ================= RIGHT COLUMN (Sidebar) ================= */}
-        <div className="w-full xl:w-[320px] 2xl:w-[320px] shrink-0 flex flex-col gap-6">
-          <VehicleSidebar />
-        </div>
-
-      </div>
-
-      {/* 3. Footer */}
+      {/* 4. Footer */}
       <div className="pt-6 mt-4 border-t border-gray-200">
         <div className="hidden sm:flex justify-between items-center text-xs text-gray-500 font-medium">
           <p>© 2026 Way We Go CRM. All rights reserved.</p>

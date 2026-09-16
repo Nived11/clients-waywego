@@ -1,49 +1,83 @@
-"use client";
-
-import { useState, useRef, useEffect } from "react";
-import { Edit2, MoreVertical, Eye, FileText, Trash2, ChevronDown,DollarSign } from "lucide-react";
+import { Edit2, MoreVertical, Image as ImageIcon, Trash2, FileText, DollarSign } from "lucide-react";
 import Link from "next/link";
+import Pagination from "@/components/ui/Pagination"; 
+import { ConfirmModal } from "@/components/ui/ConfirmModal"; 
+import { useState, useRef, useEffect } from "react";
 
-export default function VehicleTable() {
-  const [openDropdown, setOpenDropdown] = useState<number | null>(null);
-  const tableRef = useRef<HTMLDivElement>(null);
+interface VehicleTableProps {
+  vehicles: any[];
+  loading: boolean;
+  page: number;
+  limit: number;
+  totalCount: number;
+  onPageChange: (page: number) => void;
+  onDelete: (id: string | number) => Promise<void>;
+}
 
+// 🔥 പ്രീമിയം ഷിമ്മർ എഫക്റ്റിനുള്ള കോമ്പോണന്റ് (Destinations-ലേത് പോലെ തന്നെ)
+const ShimmerBox = ({ className = "" }: { className?: string }) => (
+  <div className={`relative overflow-hidden bg-gray-200/80 rounded-lg ${className}`}>
+    <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shimmer"></div>
+  </div>
+);
+
+export default function VehicleTable({ vehicles, loading, page, limit, totalCount, onPageChange, onDelete }: VehicleTableProps) {
+
+  const [activeDropdown, setActiveDropdown] = useState<string | number | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // പുറത്ത് ക്ലിക്ക് ചെയ്താൽ ഡ്രോപ്പ്ഡൗൺ ക്ലോസ് ആകാൻ
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (tableRef.current && !tableRef.current.contains(event.target as Node)) {
-        setOpenDropdown(null);
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setActiveDropdown(null);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // 🔥 ഡാറ്റയിൽ id കൂടി ആഡ് ചെയ്തു (URL ൽ കാണിക്കാൻ)
-  const vehicles = [
-    { id: "v1", name: "Toyota Innova Crysta", color: "White", reg: "KL 07 CP 1234", type: "SUV", capacity: "7 + 1", fuel: "Diesel", status: "Active", loc: "Kochi", img: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=100&h=100&fit=crop" },
-    { id: "v2", name: "Tempo Traveller 12 Seater", color: "White", reg: "KL 07 BX 5678", type: "Tempo Traveller", capacity: "12 + 1", fuel: "Diesel", status: "Active", loc: "Kochi", img: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=100&h=100&fit=crop" },
-    { id: "v3", name: "Mini Bus 20 Seater", color: "White", reg: "KL 07 BY 9012", type: "Mini Bus", capacity: "20 + 1", fuel: "Diesel", status: "Active", loc: "Alleppey", img: "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=100&h=100&fit=crop" },
-    { id: "v4", name: "Maruti Dzire", color: "White", reg: "KL 07 CF 3456", type: "Sedan", capacity: "4 + 1", fuel: "Petrol", status: "Maintenance", loc: "Munnar", img: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=100&h=100&fit=crop" },
-    { id: "v5", name: "Force Traveller 17 Seater", color: "White", reg: "KL 07 CG 7890", type: "Tempo Traveller", capacity: "17 + 1", fuel: "Diesel", status: "Active", loc: "Thekkady", img: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=100&h=100&fit=crop" },
-    { id: "v6", name: "Mahindra XUV700", color: "White", reg: "KL 07 CH 2468", type: "SUV", capacity: "7 + 1", fuel: "Diesel", status: "Inactive", loc: "Kochi", img: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=100&h=100&fit=crop" },
-    { id: "v7", name: "Toyota Etios", color: "White", reg: "KL 07 CJ 1357", type: "Sedan", capacity: "4 + 1", fuel: "Petrol", status: "Active", loc: "Kovalam", img: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=100&h=100&fit=crop" },
-    { id: "v8", name: "Luxury Bus 35 Seater", color: "White", reg: "KL 07 CK 9753", type: "Luxury Bus", capacity: "35 + 1", fuel: "Diesel", status: "Active", loc: "Kochi", img: "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=100&h=100&fit=crop" },
-  ];
-
   const getStatusStyle = (status: string) => {
-    switch (status) {
-      case 'Active': return 'bg-emerald-50 text-emerald-600';
-      case 'Maintenance': return 'bg-amber-50 text-amber-600';
-      case 'Inactive': return 'bg-rose-50 text-rose-500';
-      default: return 'bg-gray-50 text-gray-600';
+    const s = status?.toLowerCase() || '';
+    if (s === 'active') return 'bg-emerald-50 text-emerald-600';
+    if (s === 'maintenance') return 'bg-amber-50 text-amber-600';
+    return 'bg-rose-50 text-rose-500';
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!selectedVehicle) return;
+    setDeleting(true);
+    try {
+      await onDelete(selectedVehicle.id);
+      setDeleteModalOpen(false);
+      setSelectedVehicle(null);
+    } catch (err) {
+      // Error handled by toast in hook
+    } finally {
+      setDeleting(false);
     }
   };
 
   return (
-    <div className="flex flex-col flex-1 overflow-hidden" ref={tableRef}>
-      <div className="overflow-x-auto w-full flex-1 pb-8">
-        <table className="w-full text-left text-[11px] min-w-[1050px]">
-          <thead className="bg-white text-gray-500 font-bold border-b border-gray-100">
+    <div className="flex flex-col flex-1 overflow-hidden relative">
+      
+      {/* 🔥 Smooth Shimmer Keyframe Animation */}
+      <style>{`
+        @keyframes shimmer {
+          100% { transform: translateX(100%); }
+        }
+        .animate-shimmer {
+          animation: shimmer 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+      `}</style>
+
+      <div className="overflow-x-auto w-full flex-1 min-h-[300px]">
+        <table className="w-full text-left text-xs min-w-[1100px]">
+          <thead className="bg-gray-50/80 text-gray-500 border-b border-gray-100 font-bold">
             <tr>
               <th className="py-4 px-5">Vehicle</th>
               <th className="py-4 px-4">Registration No.</th>
@@ -55,104 +89,199 @@ export default function VehicleTable() {
               <th className="py-4 px-4 text-center">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50">
-            {vehicles.map((row, idx) => (
-              <tr key={idx} className="hover:bg-gray-50/80 transition-colors">
-                
-                <td className="py-3 px-5">
-                  <div className="flex items-center gap-3">
-                    <img src={row.img} alt={row.name} className="w-10 h-8 rounded border border-gray-200 object-cover" />
-                    <div>
-                      <p className="font-bold text-gray-800 text-xs">{row.name}</p>
-                      <p className="text-[10px] text-gray-500 font-medium">{row.color}</p>
+          
+          {loading ? (
+            <tbody className="divide-y divide-gray-50">
+              {[...Array(6)].map((_, i) => (
+                <tr key={i} className="bg-white">
+                  {/* Vehicle Name & Image Skeleton */}
+                  <td className="py-3 px-5">
+                    <div className="flex items-center gap-3">
+                      <ShimmerBox className="w-10 h-10 !rounded-lg shrink-0" />
+                      <div className="flex flex-col gap-1.5 w-full">
+                        <ShimmerBox className="w-28 h-3 !rounded-full" />
+                        <ShimmerBox className="w-16 h-2 !rounded-full" />
+                      </div>
                     </div>
-                  </div>
-                </td>
-                
-                <td className="py-3 px-4 font-bold text-gray-800">{row.reg}</td>
-                <td className="py-3 px-4 font-semibold text-gray-700">{row.type}</td>
-                <td className="py-3 px-4 text-center font-bold text-gray-700">{row.capacity}</td>
-                <td className="py-3 px-4 font-semibold text-gray-600">{row.fuel}</td>
-                
-                <td className="py-3 px-4">
-                  <span className={`px-2.5 py-1 rounded text-[9px] font-bold ${getStatusStyle(row.status)}`}>
-                    {row.status}
-                  </span>
-                </td>
-                
-                <td className="py-3 px-4 font-semibold text-gray-700">{row.loc}</td>
-                
-                <td className="py-3 px-4">
-                  <div className="flex items-center justify-center gap-1.5">
-                    
-                    <button className="w-6 h-6 flex items-center justify-center border border-gray-200 rounded hover:bg-gray-100 text-blue-600 transition-colors cursor-pointer">
-                      <Eye size={12} strokeWidth={2.5} />
-                    </button>
-                    
-                    {/* 🔥 LINK UPDATED HERE */}
-                    <Link href={`/vehicles/${row.id}/edit`} className="w-6 h-6 flex items-center justify-center border border-gray-200 rounded hover:bg-gray-100 text-blue-600 transition-colors cursor-pointer">
-                      <Edit2 size={12} strokeWidth={2.5} />
-                    </Link>
-                    
-                    <div className="relative">
-                      <button 
-                        onClick={() => setOpenDropdown(openDropdown === idx ? null : idx)}
-                        className={`w-6 h-6 flex items-center justify-center border border-gray-200 rounded transition-colors cursor-pointer ${
-                          openDropdown === idx ? 'bg-gray-100 text-gray-800' : 'hover:bg-gray-100 text-gray-500'
-                        }`}
-                      >
-                        <MoreVertical size={13} strokeWidth={2.5} />
-                      </button>
-
-                      {openDropdown === idx && (
-                        <div className="absolute right-0 top-full mt-1 w-36 bg-white border border-gray-100 shadow-lg rounded-xl z-50 py-1.5 animate-in fade-in zoom-in-95 duration-100">
-                          
-                          {/* 🔥 NEW PRICING LINK ADDED */}
-                          <Link href={`/vehicles/${row.id}/pricing`} className="w-full text-left px-3.5 py-2 text-[11px] font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors cursor-pointer">
-                            <DollarSign size={13} className="text-blue-500" strokeWidth={2.5} /> Prices
-                          </Link>
-
-                          <button className="w-full text-left px-3.5 py-2 text-[11px] font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors">
-                            <FileText size={13} className="text-purple-500" /> Documents
-                          </button>
-                          <div className="h-px bg-gray-100 my-1"></div>
-                          <button className="w-full text-left px-3.5 py-2 text-[11px] font-bold text-rose-500 hover:bg-rose-50 flex items-center gap-2 transition-colors">
-                            <Trash2 size={13} strokeWidth={2.5} /> Delete
-                          </button>
-                        </div>
-                      )}
+                  </td>
+                  {/* Registration No Skeleton */}
+                  <td className="py-3 px-4"><ShimmerBox className="w-24 h-3 !rounded-full" /></td>
+                  {/* Type Skeleton */}
+                  <td className="py-3 px-4"><ShimmerBox className="w-16 h-3 !rounded-full" /></td>
+                  {/* Seating Capacity Skeleton */}
+                  <td className="py-3 px-4"><ShimmerBox className="w-14 h-4 !rounded-md mx-auto" /></td>
+                  {/* Fuel Type Skeleton */}
+                  <td className="py-3 px-4"><ShimmerBox className="w-16 h-3 !rounded-full" /></td>
+                  {/* Status Skeleton */}
+                  <td className="py-3 px-4"><ShimmerBox className="w-16 h-5 !rounded-md" /></td>
+                  {/* Location Skeleton */}
+                  <td className="py-3 px-4"><ShimmerBox className="w-20 h-3 !rounded-full" /></td>
+                  {/* Actions Skeleton */}
+                  <td className="py-3 px-4 text-center">
+                    <div className="flex items-center justify-center gap-2">
+                      <ShimmerBox className="w-7 h-7 !rounded-md" />
+                      <ShimmerBox className="w-7 h-7 !rounded-md" />
                     </div>
-
-                  </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          ) : vehicles.length === 0 ? (
+            <tbody>
+              <tr>
+                <td colSpan={8} className="py-20 text-center text-gray-500 font-medium text-sm">
+                  No vehicles found for your search/filters.
                 </td>
-
               </tr>
-            ))}
-          </tbody>
+            </tbody>
+          ) : (
+            <tbody className="divide-y divide-gray-50">
+              {vehicles.map((row) => {
+                const imageUrl = row.primary_image_url || row.primary_image;
+                const statusText = row.status_display || row.status || 'Active';
+                const regNo = row.registration_number || row.code || "-";
+
+                return (
+                  <tr key={row.id} className="hover:bg-gray-50/80 transition-colors">
+
+                    {/* Vehicle Name & Image */}
+                    <td className="py-3 px-5">
+                      <div className="flex items-center gap-3">
+                        {imageUrl ? (
+                          <img src={imageUrl} alt={row.name} className="w-10 h-10 rounded-lg object-cover border border-gray-100 shrink-0" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center shrink-0">
+                            <ImageIcon size={16} className="text-gray-400" />
+                          </div>
+                        )}
+                        <div>
+                          <p className="font-bold text-gray-800">{row.name}</p>
+                          <p className="text-[10px] text-gray-500 mt-0.5">{row.code}</p>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Registration No */}
+                    <td className="py-3 px-4 font-bold text-gray-800 whitespace-nowrap">
+                      {regNo}
+                    </td>
+
+                    {/* Type / Category */}
+                    <td className="py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">
+                      {row.category_name || "-"}
+                    </td>
+
+                    {/* Seating Capacity */}
+                    <td className="py-3 px-4 text-center font-bold text-gray-700 whitespace-nowrap">
+                      {row.seats_display || `${row.seats || 0} Seats`}
+                    </td>
+
+                    {/* Fuel Type */}
+                    <td className="py-3 px-4 font-semibold text-gray-600 whitespace-nowrap">
+                      {row.fuel_type_display || "-"}
+                    </td>
+
+                    {/* Status */}
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold ${getStatusStyle(row.status)}`}>
+                        {statusText}
+                      </span>
+                    </td>
+
+                    {/* Location / Destination */}
+                    <td className="py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">
+                      {row.destination_name || "-"}
+                    </td>
+
+                    {/* Actions */}
+                    <td className="py-3 px-4 relative">
+                      <div className="flex items-center justify-center gap-2">
+                        <Link 
+                          href={`/vehicles/${row.id}/edit`}
+                          className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded-md hover:bg-gray-100 text-blue-600 transition-colors cursor-pointer"
+                          title="Edit"
+                        >
+                          <Edit2 size={13} strokeWidth={2.5} />
+                        </Link>
+
+                        {/* 3 Dot Button & Dropdown */}
+                        <div className="relative" ref={activeDropdown === row.id ? dropdownRef : null}>
+                          <button 
+                            onClick={() => setActiveDropdown(activeDropdown === row.id ? null : row.id)}
+                            className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded-md hover:bg-gray-100 text-gray-600 transition-colors cursor-pointer"
+                          >
+                            <MoreVertical size={14} strokeWidth={2.5} />
+                          </button>
+
+                          {activeDropdown === row.id && (
+                            <div className="absolute right-0 top-full mt-1 w-36 bg-white border border-gray-100 rounded-xl shadow-lg z-30 py-1">
+                              <Link 
+                                href={`/vehicles/${row.id}/pricing`} 
+                                className="w-full text-left px-3.5 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors cursor-pointer"
+                              >
+                                <DollarSign size={13} className="text-blue-500" strokeWidth={2.5} /> Prices
+                              </Link>
+
+                              <button 
+                                onClick={() => setActiveDropdown(null)}
+                                className="w-full text-left px-3.5 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors cursor-pointer"
+                              >
+                                <FileText size={13} className="text-purple-500" /> Documents
+                              </button>
+
+                              <div className="h-px bg-gray-100 my-1"></div>
+
+                              <button 
+                                onClick={() => {
+                                  setActiveDropdown(null);
+                                  setSelectedVehicle(row);
+                                  setDeleteModalOpen(true);
+                                }}
+                                className="w-full flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                              >
+                                <Trash2 size={13} /> Delete
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                      </div>
+                    </td>
+
+                  </tr>
+                );
+              })}
+            </tbody>
+          )}
         </table>
       </div>
 
-      {/* Pagination */}
-      <div className="border-t border-gray-100 p-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-medium text-gray-500 bg-white">
-        <div className="w-full sm:w-1/3 text-left">
-          <p>Showing 1 to 8 of 58 vehicles</p>
-        </div>
-        <div className="w-full sm:w-1/3 flex items-center justify-center gap-1.5">
-          <button className="w-6 h-6 rounded border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors">&lt;</button>
-          <button className="w-6 h-6 rounded bg-blue-600 text-white font-bold flex items-center justify-center shadow-sm">1</button>
-          <button className="w-6 h-6 rounded border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors">2</button>
-          <button className="w-6 h-6 rounded border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors">3</button>
-          <span className="px-0.5 md:px-1">...</span>
-          <button className="w-6 h-6 rounded border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors">8</button>
-          <button className="w-6 h-6 rounded border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors">&gt;</button>
-        </div>
-        <div className="w-full sm:w-1/3 flex justify-end">
-          <div className="flex items-center gap-1.5 border border-gray-200 rounded px-2.5 py-1.5 hover:bg-gray-50 cursor-pointer">
-            <span className="text-gray-700 font-bold">10 / page</span>
-            <ChevronDown size={12} className="text-gray-400" />
-          </div>
-        </div>
-      </div>
+      {/* Backend Pagination */}
+      <Pagination 
+        page={page} 
+        limit={limit} 
+        totalCount={totalCount} 
+        onPageChange={onPageChange} 
+      />
+
+      {/* Confirm Modal */}
+      <ConfirmModal 
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          if (!deleting) {
+            setDeleteModalOpen(false);
+            setSelectedVehicle(null);
+          }
+        }}
+        onConfirm={handleConfirmDelete}
+        title="Delete Vehicle"
+        message={`Are you sure you want to delete "${selectedVehicle?.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDanger={true}
+        isLoading={deleting}
+      />
+
     </div>
   );
 }

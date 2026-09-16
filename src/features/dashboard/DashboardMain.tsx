@@ -23,14 +23,12 @@ export const DashboardMain = ({ tenantName }: { tenantName: string }) => {
   if (loading) return <DashboardSkeleton />;
   if (error) return <DashboardError error={error} onRetry={refetch} />;
 
-  // പുതിയ JSON Structure അനുസരിച്ച് ഡാറ്റ ഡീസ്ട്രക്ചർ ചെയ്യുന്നു
   const { 
     tenant, kpi_cards, attention_required, enquiry_pipeline, 
     quotation_performance, todays_followups, recent_enquiries, 
     recent_quotations, upcoming_departures, payments_overview 
   } = data;
 
-  // Change text സ്പ്ലിറ്റ് ചെയ്യാനുള്ള ചെറിയ ഫംഗ്ഷൻ
   const parseChange = (text: string) => {
     if (!text) return { val: "", desc: "" };
     const parts = text.split(" ");
@@ -48,7 +46,6 @@ export const DashboardMain = ({ tenantName }: { tenantName: string }) => {
           </h1>
         </div>
         
-        {/* മൊബൈലിൽ ഒരൊറ്റ വരിയിൽ വരാൻ flex-row, w-full, flex-1 എന്നിവ നൽകി */}
         <div className="flex flex-row items-center justify-between md:justify-end gap-2 sm:gap-3 w-full md:w-auto mt-2 md:mt-0">
           <button className="flex-1 md:flex-none flex items-center justify-center gap-1.5 sm:gap-2 bg-white border border-gray-200 text-gray-700 px-2 sm:px-4 py-2 rounded-lg text-[11px] sm:text-sm font-bold hover:bg-gray-50 transition shadow-sm whitespace-nowrap">
             <span>{tenant?.current_date || "Today"}</span>
