@@ -2,15 +2,18 @@ import { useState, useEffect, useCallback } from 'react';
 import { getVehicleFilterOptions } from '../services/vehicleServices';
 
 export const useVehicleFilterOptions = () => {
-  const [filterOptions, setFilterOptions] = useState<any>(null);
+  const [filterOptions, setFilterOptions] = useState<any>({ categories: [], statuses: [], fuel_types: [], locations: [] });
   const [loading, setLoading] = useState(true);
 
   const fetchOptions = useCallback(async () => {
+    setLoading(true);
     try {
       const data = await getVehicleFilterOptions();
-      setFilterOptions(data);
-    } catch (err) {
-      console.error("Failed to fetch filter options", err);
+      if (data) {
+        setFilterOptions(data);
+      }
+    } catch (err: any) {
+      console.error("Failed to fetch filter options safely caught:", err);
     } finally {
       setLoading(false);
     }
@@ -20,5 +23,5 @@ export const useVehicleFilterOptions = () => {
     fetchOptions();
   }, [fetchOptions]);
 
-  return { filterOptions, loading };
+  return { filterOptions, loading, refetchOptions: fetchOptions };
 };

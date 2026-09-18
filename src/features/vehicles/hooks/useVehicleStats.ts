@@ -14,7 +14,9 @@ export const useVehicleStats = () => {
       const responseData = await getVehicleStats();
       setStatsData(responseData);
     } catch (err: any) {
-      setError(extractErrorMessages(err));
+      const errMsg = extractErrorMessages(err);
+      setError(errMsg); // 🔥 എറർ മെസ്സേജ് ക്യാപ്ചർ ചെയ്തു
+      setStatsData(null); // ഡാറ്റ null ആയി ഇടുന്നു
     } finally {
       setLoading(false);
     }

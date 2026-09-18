@@ -26,7 +26,13 @@ export const getVehicleFilterOptions = async () => {
     const response = await api.get('/api/v1/tenant/vehicles/filter-options/');
     return response.data;
   } catch (error: any) {
-    throw error;
+    console.error("Failed to fetch filter options:", error);
+    return {
+      categories: [],
+      statuses: [],
+      fuel_types: [],
+      locations: []
+    };
   }
 };
 
@@ -68,6 +74,15 @@ export const updateVehicle = async (id: string | number, formData: FormData) => 
 export const deleteVehicle = async (id: string | number) => {
   try {
     const response = await api.delete(`/api/v1/tenant/vehicles/${id}/`);
+    return response.data;
+  } catch (error: any) {
+    throw error;
+  }
+};
+
+export const createVehicleCategory = async (categoryData: any) => {
+  try {
+    const response = await api.post('/api/v1/tenant/vehicle-categories/', categoryData);
     return response.data;
   } catch (error: any) {
     throw error;

@@ -1,10 +1,11 @@
-import { CarFront, Edit2, Trash2, Plus } from "lucide-react";
+import { CarFront, Edit2, Trash2, Plus, AlertCircle } from "lucide-react";
 
 interface VehicleActivityProps {
   activities?: any[];
+  error?: string | null; // 🔥 എറർ പ്രോപ്പ് ചേർത്തു
 }
 
-export default function VehicleActivity({ activities = [] }: VehicleActivityProps) {
+export default function VehicleActivity({ activities = [], error }: VehicleActivityProps) {
   
   const getActivityIconConfig = (actionType: string) => {
     if (actionType === 'create') return { Icon: Plus, bg: 'bg-emerald-50', color: 'text-emerald-500', border: 'border-emerald-100' };
@@ -14,15 +15,20 @@ export default function VehicleActivity({ activities = [] }: VehicleActivityProp
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 w-full">
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 w-full">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="text-sm font-bold text-gray-800">Recent Activities</h3>
-          <p className="text-xs text-gray-500 mt-0.5">Latest updates and actions performed on vehicles.</p>
         </div>
       </div>
 
-      {activities.length === 0 ? (
+      {/* 🔥 Error Handling for Recent Activities */}
+      {error ? (
+        <div className="bg-rose-50 border border-rose-100 p-4 rounded-xl flex items-start gap-2.5 text-rose-600 w-full">
+          <AlertCircle size={16} className="shrink-0 mt-0.5" />
+          <span className="text-[12px] font-bold leading-relaxed">Failed to load recent activities.</span>
+        </div>
+      ) : activities.length === 0 ? (
         <div className="py-8 text-center text-gray-400 text-xs italic">
           No recent activities found.
         </div>

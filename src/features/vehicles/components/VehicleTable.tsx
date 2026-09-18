@@ -41,12 +41,19 @@ export default function VehicleTable({ vehicles, loading, page, limit, totalCoun
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const getStatusStyle = (status: string) => {
-    const s = status?.toLowerCase() || '';
-    if (s === 'active') return 'bg-emerald-50 text-emerald-600';
-    if (s === 'maintenance') return 'bg-amber-50 text-amber-600';
-    return 'bg-rose-50 text-rose-500';
-  };
+const getStatusStyle = (status: any) => {
+  let s = '';
+  if (typeof status === 'boolean') {
+    s = status ? 'active' : 'inactive';
+  } else {
+    s = typeof status === 'string' ? status : (status?.value || status?.label || '');
+  }
+  
+  const lowerS = s.toLowerCase();
+  if (lowerS === 'active' || lowerS === 'true') return 'bg-emerald-50 text-emerald-600';
+  if (lowerS === 'maintenance') return 'bg-amber-50 text-amber-600';
+  return 'bg-rose-50 text-rose-500';
+};
 
   const handleConfirmDelete = async () => {
     if (!selectedVehicle) return;
@@ -138,7 +145,7 @@ export default function VehicleTable({ vehicles, loading, page, limit, totalCoun
             <tbody className="divide-y divide-gray-50">
               {vehicles.map((row) => {
                 const imageUrl = row.primary_image_url || row.primary_image;
-                const statusText = row.status_display || row.status || 'Active';
+const statusText = row.status_display || (row.status === true || row.is_active ? 'Active' : 'Inactive');
                 const regNo = row.registration_number || row.code || "-";
 
                 return (

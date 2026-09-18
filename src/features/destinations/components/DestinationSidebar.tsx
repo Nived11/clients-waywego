@@ -1,6 +1,5 @@
 "use client";
 
-// 🔥 ImageIcon ഇമ്പോർട്ട് ചെയ്തു
 import { ChevronRight, PlusCircle, Flag, Import, Map, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
